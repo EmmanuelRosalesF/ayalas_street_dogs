@@ -1,0 +1,186 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ayalas_street_dogs</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ayalas_street_dogs.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+</head>
+<body>
+    @if (User.IsInRole("admin"))
+    {    
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="sidebar-logo">
+            <img src="~/img/logoAyalas-removebg-preview.png" alt="Logo" />
+            <h5>Ayala's Street Dogs</h5>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" asp-area="" asp-controller="Home" asp-action="Index" data-bs-toggle="tooltip" data-bs-placement="right" title="Dashboard">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" asp-controller="Ventas" asp-action="Index" data-bs-toggle="tooltip" data-bs-placement="right" title="Ventas">
+                        <i class="bi bi-cart-check"></i>
+                        <span>Ventas</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" asp-controller="Platillos" asp-action="Index" data-bs-toggle="tooltip" data-bs-placement="right" title="Platillos">
+                        <i class="bi bi-basket"></i>
+                        <span>Platillos</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" asp-controller="Categorias" asp-action="Index" data-bs-toggle="tooltip" data-bs-placement="right" title="Categorías">
+                        <i class="bi bi-tags"></i>
+                        <span>Categorías</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" asp-controller="Proveedores" asp-action="Index" data-bs-toggle="tooltip" data-bs-placement="right" title="Proveedores">
+                        <i class="bi bi-truck"></i>
+                        <span>Proveedores</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" asp-controller="Usuarios" asp-action="Index" data-bs-toggle="tooltip" data-bs-placement="right" title="Usuarios">
+                        <i class="bi bi-people"></i>
+                        <span>Usuarios</span>
+                    </a>
+                </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Inventario" asp-action="Index" data-bs-toggle="tooltip" data-bs-placement="right" title="Inventario">
+                            <i class="bi bi-shop-window"></i>
+                            <span>Inventario</span>
+                        </a>
+                    </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy" data-bs-toggle="tooltip" data-bs-placement="right" title="Privacidad">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>Privacidad</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" asp-controller="Auth" asp-action="Logout" data-bs-toggle="tooltip" data-bs-placement="right" title="Logout">
+                        <i class="bi bi-box-arrow-left"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Toggle Button -->
+    <button class="toggle-btn" id="sidebarToggle">
+        <i class="bi bi-chevron-right" id="toggleIcon"></i>
+    </button>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <!-- Top Navbar opcional -->
+        <div class="top-navbar">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">@ViewData["Title"] Administrador</h4>
+                <div>
+                    <span class="text-muted">Bienvenido, Admin @(User?.Identity?.Name ?? "Invitado")</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-wrapper">
+            @RenderBody()
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-muted">
+            <div class="container-fluid">
+                &copy; 2025 - Ayala's Street Dogs - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </div>
+        </footer>
+    </div>
+    }
+    else
+    {
+        <div class="container">
+            @RenderBody()
+        </div>
+	}
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // Toggle Sidebar
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const icon = document.getElementById('toggleIcon');
+
+            sidebar.classList.toggle('expanded');
+
+            // Cambiar icono
+            if (sidebar.classList.contains('expanded')) {
+                icon.className = 'bi bi-x-lg';
+            } else {
+                icon.className = 'bi bi-chevron-right';
+            }
+
+            // Actualizar tooltips
+            updateTooltips();
+        });
+
+        // Inicializar tooltips
+        function updateTooltips() {
+            const sidebar = document.getElementById('sidebar');
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+
+            tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                // Destruir tooltip existente
+                const existingTooltip = bootstrap.Tooltip.getInstance(tooltipTriggerEl);
+                if (existingTooltip) {
+                    existingTooltip.dispose();
+                }
+
+                // Crear nuevo tooltip solo si el sidebar está cerrado
+                if (!sidebar.classList.contains('expanded')) {
+                    new bootstrap.Tooltip(tooltipTriggerEl);
+                }
+            });
+        }
+
+        // Marcar enlace activo
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                }
+            });
+
+            // Inicializar tooltips al cargar (sidebar cerrada por defecto)
+            updateTooltips();
+
+            // Responsive: Toggle en móviles
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebarToggle').addEventListener('click', function() {
+                    document.getElementById('sidebar').classList.toggle('active');
+                });
+            }
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

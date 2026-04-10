@@ -1,0 +1,177 @@
+﻿@using ayalas_street_dogs.Controllers
+@model HomeController.DashboardViewModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reporte de Ventas</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            font-size: 10pt;
+        }
+
+        h1, h2 {
+            color: #333;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+            margin-top: 20px;
+        }
+
+        .card-metrics {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .metric-box {
+            border: 1px solid #eee;
+            padding: 15px;
+            width: 23%;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+            .metric-box h3 {
+                font-size: 14pt;
+                margin: 0 0 5px 0;
+                color: #555;
+            }
+
+            .metric-box p {
+                font-size: 18pt;
+                font-weight: bold;
+                margin: 0;
+            }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="header" style="text-align: center; margin-bottom: 30px;">
+        <h1 style="border: none;">Ayala's Street Dogs</h1>
+        <p>Reporte de Dashboard General - Generado el @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+    </div>
+
+    <h2>Resumen Ejecutivo</h2>
+
+    <div class="card-metrics">
+        <div class="metric-box">
+            <h3>Ventas del Día</h3>
+            <p>$@Model.VentasDelDia.ToString("N2")</p>
+            <span style="color: @(Model.PorcentajeCambioVentas >= 0 ? "green" : "red"); font-size: 10pt;">
+                @Model.PorcentajeCambioVentas.ToString("N1")% vs Ayer
+            </span>
+        </div>
+        <div class="metric-box">
+            <h3>Total Productos</h3>
+            <p>@Model.TotalProductos</p>
+            <span style="font-size: 10pt;">En menú</span>
+        </div>
+        <div class="metric-box">
+            <h3>Pedidos Hoy</h3>
+            <p>@Model.PedidosHoy</p>
+            <span style="font-size: 10pt;">Completados</span>
+        </div>
+        <div class="metric-box">
+            <h3>Productos sin ventas</h3>
+            <p>@Model.StockBajo</p>
+            <span style="font-size: 10pt;">@(Model.StockBajo == 0 ? "Todo bien" : "Requiere atención")</span>
+        </div>
+    </div>
+
+    <h2>Ventas de la Última Semana</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Día</th>
+                <th>Fecha</th>
+                <th>Total Vendido</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var venta in Model.VentasSemana.OrderBy(v => v.Fecha))
+            {
+                <tr>
+                    <td>@venta.Fecha.DayOfWeek</td>
+                    <td>@venta.Fecha.ToString("dd/MM/yyyy")</td>
+                    <td>$@venta.Total.ToString("N2")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h2>Top 5 Productos Más Vendidos</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Producto</th>
+                <th>Cantidad Vendida</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int rank = 1;
+            }
+            @foreach (var producto in Model.TopProductos)
+            {
+                <tr>
+                    <td>@(rank++)</td>
+                    <td>@producto.NombrePlatillo</td>
+                    <td>@producto.CantidadVendida vendidos</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h2>10 Ventas Recientes Completadas</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th>Cant. Productos</th>
+                <th>Primer Producto</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var venta in Model.VentasRecientes)
+            {
+                <tr>
+                    <td>#@venta.IdVenta</td>
+                    <td>@venta.NombreCliente</td>
+                    <td>@venta.FechaV?.ToString("dd/MM HH:mm")</td>
+                    <td>$@venta.TotalV.ToString("N2")</td>
+                    <td>@venta.CantidadProductos</td>
+                    <td>@venta.PrimerProducto</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</body>
+</html>

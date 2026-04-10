@@ -1,0 +1,132 @@
+﻿@model ayalas_street_dogs.Models.Categorium
+
+@{
+    ViewData["Title"] = "Registrar Categoría";
+}
+
+<style>
+    /* 1. Base y Fondo (Solución al scroll) */
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
+    body {
+        background-color: #F2E2C4; /* Crema */
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .container {
+        flex: 1; /* Permite que el contenedor crezca */
+    }
+
+    /* 2. Tarjeta principal (Estilo POS) */
+    .card-custom {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(13, 13, 13, 0.1);
+        background-color: #ffffff;
+        padding: 30px; /* Padding interno para las formas */
+    }
+
+    /* 3. Título de Página */
+    .page-title {
+        color: #0D0D0D;
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin: 0 0 25px 0;
+        border-left: 5px solid #F28F16; /* Acento naranja */
+        padding-left: 15px;
+    }
+
+    /* 4. Botón Principal con Degradado */
+    .btn-brand-gradient {
+        background: linear-gradient(90deg, #8AA624 0%, #F28F16 100%);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .btn-brand-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(242, 143, 22, 0.4);
+            color: white;
+        }
+
+    /* 5. Estilo de Inputs (Moderno y Limpio) */
+    .input-custom {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 10px 15px;
+        transition: all 0.3s;
+    }
+
+        .input-custom:focus {
+            border-color: #F28F16; /* Color de enfoque naranja */
+            box-shadow: 0 0 0 0.25rem rgba(242, 143, 22, 0.25);
+        }
+
+    /* 6. Botón Secundario/Regresar (Negro discreto) */
+    .btn-outline-secondary-brand {
+        color: #0D0D0D;
+        border: none;
+        background-color: transparent;
+        transition: color 0.2s;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+        .btn-outline-secondary-brand:hover {
+            color: #D9580D; /* Naranja oscuro al pasar el mouse */
+            text-decoration: underline;
+        }
+</style>
+
+<div class="container mt-5">
+    <div class="card card-custom mx-auto" style="max-width: 550px;">
+        <h1 class="page-title">REGISTRAR CATEGORÍA</h1>
+
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="NombreCategoria" class="form-label control-label fw-bold">Nombre de Categoría</label>
+                <input asp-for="NombreCategoria" class="form-control input-custom" placeholder="Ej: Salchichonería, Panadeía, Gas..." />
+                <span asp-validation-for="NombreCategoria" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Tipo" class="form-label control-label fw-bold">Tipo</label>
+                <select asp-for="Tipo" class="form-control input-custom">
+                    <option value="">-- Seleccione un tipo --</option>
+                    <option value="Producto">Producto</option>
+                    <option value="Servicio">Servicio</option>
+                </select>
+                <span asp-validation-for="Tipo" class="text-danger small"></span>
+            </div>
+
+            <div class="d-grid gap-2 mb-3">
+                <button type="submit" class="btn btn-brand-gradient py-2">
+                    <i class="bi bi-patch-plus-fill me-2"></i> AGREGAR CATEGORÍA
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center mt-3">
+            <a asp-action="Index" class="btn btn-outline-secondary-brand">
+                <i class="bi bi-arrow-left-circle-fill me-1"></i> Regresar a Categorías
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

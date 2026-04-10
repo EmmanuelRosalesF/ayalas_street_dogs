@@ -1,0 +1,80 @@
+﻿@model IEnumerable<ayalas_street_dogs.Models.Proveedor>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="container mt-5">
+    <div class="card card-custom">
+        <div class="card-header-custom">
+            <h1 class="page-title">GESTIÓN DE PROVEEDORES</h1>
+            <a asp-action="Create" class="btn btn-brand-gradient">
+                <i class="bi bi-patch-plus-fill me-2"></i> Nuevo Proveedor
+            </a>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="bi bi-tag-fill me-2"></i> Nombre de Proveedor
+                            </th>
+                            <th>
+                                <i class="bi bi-phone-fill me-2"></i> Télefono Celular
+                            </th>
+                            <th>
+                                <i class="bi bi-envelope-at-fill me-2"></i> Correo
+                            </th>
+                            <th>
+                                <i class="bi bi-map-fill me-2"></i> Dirección
+							</th>
+                            <th>
+                                <i class="bi bi-tags-fill me-2"></i> Categoría
+                            </th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">
+                                    @Html.DisplayFor(modelItem => item.NombreProveedor)
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill" style="background-color: #F2E2C4; color: #D9580D;">
+                                        @Html.DisplayFor(modelItem => item.TelefonoProveedor)
+                                    </span>
+                                </td>
+                                <td class="fw-bold">
+                                    @Html.DisplayFor(modelItem => item.EmailProveedor)
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill" style="background-color: #F2E2C4; color: #D9580D;">
+                                        @Html.DisplayFor(modelItem => item.Direccion)
+                                    </span>
+                                </td>
+                                <td class="fw-bold">
+                                    @Html.DisplayFor(modelItem => item.IdCategoriaNavigation.NombreCategoria)
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="Edit" asp-route-id="@item.IdProveedor" class="btn-action btn-edit" title="Editar">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.IdProveedor" class="btn-action btn-details" title="Detalles">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.IdProveedor" class="btn-action btn-delete" title="Eliminar">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

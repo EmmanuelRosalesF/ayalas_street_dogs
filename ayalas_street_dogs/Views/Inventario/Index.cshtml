@@ -1,0 +1,638 @@
+﻿@model ayalas_street_dogs.Controllers.InventarioViewModel
+
+@{
+    ViewData["Title"] = "Gestión de Inventario";
+}
+
+<div class="container-fluid mt-4">
+    <!-- Header con acciones -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="page-title-main">
+                <i class="bi bi-boxes me-2"></i>
+                GESTIÓN DE INVENTARIO
+            </h1>
+            <p class="text-muted mb-0">Administración de ingredientes y stock</p>
+        </div>
+        <div class="nav-item ms-3">
+            <a asp-controller="Inventario" asp-action="GenerarReporteInventario" class="btn btn-pdf" target="_blank" title="Generar Reporte Inventario">
+                <i class="bi bi-file-earmark-pdf-fill me-2"></i> Reporte PDF
+            </a>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Create" class="btn btn-brand-gradient">
+                <i class="bi bi-plus-circle"></i> Nuevo Ingrediente
+            </a>
+        </div>
+    </div>
+
+    <!-- Alertas de TempData -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong>¡Éxito!</strong> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Error:</strong> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            <strong>Atención:</strong> @TempData["Warning"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Cards de resumen -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="summary-card">
+                <div class="summary-icon bg-verde">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <div class="summary-content">
+                    <div class="summary-label">Total Ingredientes</div>
+                    <div class="summary-value">@Model.Ingredientes.Count</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="summary-card">
+                <div class="summary-icon bg-naranja">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+                <div class="summary-content">
+                    <div class="summary-label">Stock Bajo</div>
+                    <div class="summary-value">@Model.IngredientesBajoStock.Count</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="summary-card">
+                <div class="summary-icon bg-rojo">
+                    <i class="bi bi-currency-dollar"></i>
+                </div>
+                <div class="summary-content">
+                    <div class="summary-label">Valor Total</div>
+                    <div class="summary-value">$@Model.ValorTotalInventario.ToString("N2")</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerta de stock bajo -->
+    @if (Model.IngredientesBajoStock.Any())
+    {
+        <div class="alert alert-warning-stock mb-4">
+            <div class="d-flex align-items-start">
+                <i class="bi bi-exclamation-triangle-fill fs-3 me-3"></i>
+                <div class="flex-grow-1">
+                    <h5 class="alert-heading mb-2">⚠️ Ingredientes con Stock Bajo</h5>
+                    <div class="row">
+                        @foreach (var ingrediente in Model.IngredientesBajoStock.Take(5))
+                        {
+                            <div class="col-md-6 mb-2">
+                                <div class="low-stock-item">
+                                    <strong>@ingrediente.Nombre:</strong>
+                                    <span class="badge bg-warning text-dark ms-2">
+                                        @ingrediente.StockActual.ToString("0.###") @ingrediente.UnidadMedida
+                                    </span>
+                                    <span class="text-muted small">
+                                        (Mínimo: @ingrediente.StockMinimo.ToString("0.###"))
+                                    </span>
+                                    <a asp-action="Ajustar" asp-route-id="@ingrediente.IdIngrediente"
+                                       class="btn btn-sm btn-outline-warning ms-2">
+                                        <i class="bi bi-plus-circle"></i> Ajustar
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    @if (Model.IngredientesBajoStock.Count > 5)
+                    {
+                        <small class="text-muted">Y @(Model.IngredientesBajoStock.Count - 5) más...</small>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Controles de filtro -->
+    <div class="card card-custom mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-beige">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text"
+                               class="form-control"
+                               id="searchInput"
+                               placeholder="Buscar ingrediente por nombre...">
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="form-check form-switch d-inline-block me-3">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="toggleInactivos"
+                               @(Model.MostrarInactivos ? "checked" : "")
+                               onchange="toggleInactivos(this.checked)">
+                        <label class="form-check-label fw-bold" for="toggleInactivos">
+                            <i class="bi bi-eye-slash"></i> Mostrar Inactivos
+                        </label>
+                    </div>
+                    <span class="badge badge-info-custom">
+                        @Model.Ingredientes.Count(i => i.Activo) Activos /
+                        @Model.Ingredientes.Count(i => !i.Activo) Inactivos
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de ingredientes -->
+    <div class="card card-custom">
+        <div class="card-header-table">
+            <h5 class="mb-0">
+                <i class="bi bi-list-ul me-2"></i>
+                Listado de Ingredientes
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-custom mb-0" id="tableIngredientes">
+                    <thead>
+                        <tr>
+                            <th width="5%">
+                                <i class="bi bi-hash"></i>
+                            </th>
+                            <th width="25%">
+                                <i class="bi bi-box me-1"></i>Nombre
+                            </th>
+                            <th width="12%" class="text-center">
+                                <i class="bi bi-layers me-1"></i>Stock Actual
+                            </th>
+                            <th width="12%" class="text-center">
+                                <i class="bi bi-speedometer2 me-1"></i>Stock Mínimo
+                            </th>
+                            <th width="10%" class="text-center">
+                                <i class="bi bi-rulers me-1"></i>Unidad
+                            </th>
+                            <th width="12%" class="text-end">
+                                <i class="bi bi-currency-dollar me-1"></i>Costo Unit.
+                            </th>
+                            <th width="10%" class="text-center">
+                                <i class="bi bi-toggle-on me-1"></i>Estado
+                            </th>
+                            <th width="14%" class="text-center">
+                                <i class="bi bi-gear me-1"></i>Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Ingredientes.Any())
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-5">
+                                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                                    <p class="text-muted mt-2">No hay ingredientes registrados</p>
+                                    <a asp-action="Create" class="btn btn-brand-gradient">
+                                        <i class="bi bi-plus-circle"></i> Agregar Primer Ingrediente
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var item in Model.Ingredientes)
+                        {
+                            var stockClass = item.StockActual <= item.StockMinimo ? "text-danger fw-bold" : "text-success";
+                            var rowClass = !item.Activo ? "row-inactive" : "";
+
+                            <tr class="@rowClass" data-nombre="@item.Nombre.ToLower()" data-activo="@item.Activo.ToString().ToLower()">
+                                <td>
+                                    <span class="text-muted">#@item.IdIngrediente</span>
+                                </td>
+                                <td>
+                                    <strong>@item.Nombre</strong>
+                                    @if (!item.Activo)
+                                    {
+                                        <span class="badge bg-secondary ms-2">
+                                            <i class="bi bi-archive"></i> Inactivo
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <span class="@stockClass">
+                                        @item.StockActual.ToString("F2")
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    @item.StockMinimo.ToString("F2")
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge badge-unit">@item.UnidadMedida</span>
+                                </td>
+                                <td class="text-end">
+                                    <strong>$@item.CostoUnitarioPromedio.ToString("F2")</strong>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.Activo)
+                                    {
+                                        <span class="badge badge-activo">
+                                            <i class="bi bi-check-circle"></i> Activo
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-inactivo">
+                                            <i class="bi bi-x-circle"></i> Inactivo
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        @if (item.Activo)
+                                        {
+                                            <a asp-action="Ajustar"
+                                               asp-route-id="@item.IdIngrediente"
+                                               class="btn btn-sm btn-action-ajustar"
+                                               title="Ajustar Stock">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </a>
+                                            <a asp-action="Edit"
+                                               asp-route-id="@item.IdIngrediente"
+                                               class="btn btn-sm btn-action-edit"
+                                               title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a asp-action="Historial"
+                                               asp-route-id="@item.IdIngrediente"
+                                               class="btn btn-sm btn-action-historial"
+                                               title="Ver Historial">
+                                                <i class="bi bi-clock-history"></i>
+                                            </a>
+                                            /*<a asp-action="Desactivar"
+                                            asp-route-id="@item.IdIngrediente"
+                                            class="btn btn-sm btn-action-desactivar"
+                                            title="Desactivar">
+                                            <i class="bi bi-toggle-off"></i>
+                                            </a>*/
+                                        }
+                                        else
+                                        {
+                                            <a asp-action="Historial"
+                                               asp-route-id="@item.IdIngrediente"
+                                               class="btn btn-sm btn-action-historial"
+                                               title="Ver Historial">
+                                                <i class="bi bi-clock-history"></i>
+                                            </a>
+                                            <form asp-action="Reactivar"
+                                                  asp-route-id="@item.IdIngrediente"
+                                                  method="post"
+                                                  class="d-inline"
+                                                  onsubmit="return confirm('¿Desea reactivar el ingrediente @item.Nombre?')">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-action-reactivar"
+                                                        title="Reactivar">
+                                                    <i class="bi bi-arrow-clockwise"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Búsqueda en tiempo real
+        document.getElementById('searchInput').addEventListener('input', function() {
+            var searchTerm = this.value.toLowerCase();
+            var rows = document.querySelectorAll('#tableIngredientes tbody tr[data-nombre]');
+
+            rows.forEach(function(row) {
+                var nombre = row.getAttribute('data-nombre');
+                if (nombre.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Filtro por proveedor: recarga la página con query param proveedorId
+        function filterByProveedor(proveedorId) {
+            var url = new URL(window.location);
+            if (proveedorId) {
+                url.searchParams.set('proveedorId', proveedorId);
+            } else {
+                url.searchParams.delete('proveedorId');
+            }
+            // Conservar mostrarInactivos si está presente
+            window.location.href = url.toString();
+        }
+
+        // Toggle mostrar inactivos
+        function toggleInactivos(mostrar) {
+            var url = new URL(window.location);
+            url.searchParams.set('mostrarInactivos', mostrar);
+            window.location.href = url.toString();
+        }
+
+        // Auto-ocultar alertas después de 5 segundos
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert:not(.alert-warning-stock)');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+
+    <style>
+        :root {
+            --verde-lima: #8AA624;
+            --beige: #F2E2C4;
+            --naranja: #F28F16;
+            --rojo-naranja: #D9580D;
+            --negro: #0D0D0D;
+        }
+
+        .page-title-main {
+            color: var(--negro);
+            font-weight: 700;
+            font-size: 2rem;
+        }
+
+        .btn-brand-gradient {
+            background: linear-gradient(135deg, var(--verde-lima) 0%, var(--naranja) 100%);
+            border: none;
+            color: var(--beige);
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .btn-brand-gradient:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(242, 143, 22, 0.4);
+                color: var(--beige);
+            }
+
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 8px rgba(13, 13, 13, 0.1);
+            border: 2px solid var(--beige);
+            transition: all 0.3s ease;
+        }
+
+            .summary-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 4px 16px rgba(13, 13, 13, 0.15);
+            }
+
+        .summary-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--beige);
+        }
+
+            .summary-icon.bg-verde {
+                background: var(--verde-lima);
+            }
+
+            .summary-icon.bg-naranja {
+                background: var(--naranja);
+            }
+
+            .summary-icon.bg-rojo {
+                background: var(--rojo-naranja);
+            }
+
+        .summary-content {
+            flex: 1;
+        }
+
+        .summary-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .summary-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--negro);
+        }
+
+        .alert-warning-stock {
+            background-color: rgba(242, 143, 22, 0.1);
+            border-left: 5px solid var(--naranja);
+            border-radius: 8px;
+        }
+
+        .low-stock-item {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid rgba(242, 143, 22, 0.3);
+        }
+
+        .card-custom {
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(13, 13, 13, 0.1);
+            border: none;
+        }
+
+        .card-header-table {
+            background: linear-gradient(135deg, var(--verde-lima) 0%, var(--naranja) 100%);
+            color: var(--beige);
+            padding: 1rem 1.5rem;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+        }
+
+        .bg-beige {
+            background-color: var(--beige) !important;
+            border-color: var(--verde-lima) !important;
+            color: var(--negro);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--verde-lima);
+            border-color: var(--verde-lima);
+        }
+
+        .badge-info-custom {
+            background: var(--beige);
+            color: var(--negro);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            border: 2px solid var(--verde-lima);
+        }
+
+        .table-custom {
+            font-size: 0.95rem;
+        }
+
+            .table-custom thead {
+                background: var(--beige);
+                color: var(--negro);
+                font-weight: 600;
+            }
+
+            .table-custom tbody tr {
+                transition: all 0.2s ease;
+            }
+
+                .table-custom tbody tr:hover:not(.row-inactive) {
+                    background-color: rgba(138, 166, 36, 0.05);
+                }
+
+        .row-inactive {
+            opacity: 0.6;
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .badge-unit {
+            background: var(--naranja);
+            color: var(--beige);
+            padding: 0.35rem 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-activo {
+            background: var(--verde-lima);
+            color: var(--beige);
+            padding: 0.35rem 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-inactivo {
+            background: #6c757d;
+            color: white;
+            padding: 0.35rem 0.75rem;
+            font-weight: 600;
+        }
+
+        .btn-action-ajustar {
+            background: var(--verde-lima);
+            color: var(--beige);
+            border: none;
+        }
+
+            .btn-action-ajustar:hover {
+                background: #9DBE2A;
+                color: var(--beige);
+            }
+
+        .btn-action-edit {
+            background: var(--naranja);
+            color: var(--beige);
+            border: none;
+        }
+
+            .btn-action-edit:hover {
+                background: #FF9A2E;
+                color: var(--beige);
+            }
+
+        .btn-action-historial {
+            background: #6c757d;
+            color: white;
+            border: none;
+        }
+
+            .btn-action-historial:hover {
+                background: #5a6268;
+                color: white;
+            }
+
+        .btn-action-desactivar {
+            background: var(--rojo-naranja);
+            color: var(--beige);
+            border: none;
+        }
+
+            .btn-action-desactivar:hover {
+                background: #E56A1A;
+                color: var(--beige);
+            }
+
+        .btn-action-reactivar {
+            background: var(--verde-lima);
+            color: var(--beige);
+            border: none;
+        }
+
+            .btn-action-reactivar:hover {
+                background: #9DBE2A;
+                color: var(--beige);
+            }
+
+        /* Estilos para el botón de Reporte PDF */
+        .btn-pdf {
+            background: transparent;
+            border: 2px solid var(--rojo-naranja);
+            color: var(--rojo-naranja);
+            padding: 0.45rem 1rem;
+            font-weight: 700;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.22s ease;
+        }
+
+            .btn-pdf i {
+                color: inherit;
+                font-size: 1.05rem;
+            }
+
+            .btn-pdf:hover {
+                background: linear-gradient(90deg, var(--rojo-naranja), var(--naranja));
+                color: var(--beige);
+                border-color: transparent;
+                box-shadow: 0 8px 22px rgba(217, 88, 13, 0.18);
+                transform: translateY(-3px);
+            }
+
+            .btn-pdf:focus {
+                outline: 3px solid rgba(138, 166, 36, 0.12);
+                outline-offset: 2px;
+            }
+
+            .btn-pdf:active {
+                transform: translateY(0);
+                box-shadow: none;
+            }
+    </style>
+}

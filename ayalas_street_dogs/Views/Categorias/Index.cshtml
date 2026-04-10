@@ -1,0 +1,195 @@
+﻿@model IEnumerable<ayalas_street_dogs.Models.Categorium>
+
+@{
+    ViewData["Title"] = "Categorías";
+}
+
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
+    body {
+        background-color: #F2E2C4;
+        /* Esto asegura que el fondo cubra al menos el 100% de la vista visible */
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* El contenedor principal debe expandirse si es necesario */
+    .container {
+        flex: 1;
+    }
+
+    /* Tarjeta principal estilo POS */
+    .card-custom {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(13, 13, 13, 0.1);
+        background-color: #ffffff;
+        overflow: hidden; /* Para que la tabla no rompa los bordes redondeados */
+    }
+
+    /* Encabezado de la tarjeta */
+    .card-header-custom {
+        background-color: #ffffff;
+        padding: 20px 30px;
+        border-bottom: 2px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .page-title {
+        color: #0D0D0D;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin: 0;
+        border-left: 5px solid #F28F16; /* Acento naranja */
+        padding-left: 15px;
+    }
+
+    /* Botón principal con degradado (Ayala's Style) */
+    .btn-brand-gradient {
+        background: linear-gradient(90deg, #8AA624 0%, #F28F16 100%);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .btn-brand-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(242, 143, 22, 0.4);
+            color: white;
+        }
+
+    /* Estilos de Tabla */
+    .table-custom thead th {
+        background-color: #8AA624; /* Verde Ayala */
+        color: white;
+        border: none;
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        padding: 15px;
+    }
+
+    .table-custom tbody tr {
+        transition: background-color 0.2s;
+    }
+
+        .table-custom tbody tr:hover {
+            background-color: #fff8e1; /* Un crema muy suave al pasar el mouse */
+        }
+
+    .table-custom td {
+        padding: 15px;
+        vertical-align: middle;
+        color: #0D0D0D;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    /* Botones de acción pequeños */
+    .btn-action {
+        width: 35px;
+        height: 35px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 2px;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+    }
+
+    .btn-edit {
+        color: #F28F16;
+        background-color: rgba(242, 143, 22, 0.1);
+    }
+
+        .btn-edit:hover {
+            background-color: #F28F16;
+            color: white;
+        }
+
+    .btn-details {
+        color: #8AA624;
+        background-color: rgba(138, 166, 36, 0.1);
+    }
+
+        .btn-details:hover {
+            background-color: #8AA624;
+            color: white;
+        }
+
+    .btn-delete {
+        color: #D9580D;
+        background-color: rgba(217, 88, 13, 0.1);
+    }
+
+        .btn-delete:hover {
+            background-color: #D9580D;
+            color: white;
+        }
+
+</style>
+
+<div class="container mt-5">
+    <div class="card card-custom">
+        <div class="card-header-custom">
+            <h1 class="page-title">GESTIÓN DE CATEGORÍAS</h1>
+            <a asp-action="Create" class="btn btn-brand-gradient">
+                <i class="bi bi-patch-plus-fill me-2"></i> Nueva Categoría
+            </a>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="bi bi-tag-fill me-2"></i> Nombre de Categoría
+                            </th>
+                            <th>
+                                <i class="bi bi-layers-fill me-2"></i> Tipo
+                            </th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">
+                                    @Html.DisplayFor(modelItem => item.NombreCategoria)
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill" style="background-color: #F2E2C4; color: #D9580D;">
+                                        @Html.DisplayFor(modelItem => item.Tipo)
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="Edit" asp-route-id="@item.IdCategoria" class="btn-action btn-edit" title="Editar">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.IdCategoria" class="btn-action btn-details" title="Detalles">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.IdCategoria" class="btn-action btn-delete" title="Eliminar">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

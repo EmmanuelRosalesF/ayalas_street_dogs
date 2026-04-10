@@ -1,0 +1,429 @@
+﻿@model ayalas_street_dogs.Models.ViewModels.VentaCreateViewModel
+
+@{
+    ViewData["Title"] = "Editar Venta";
+}
+<style>
+    /* Título Principal */
+    .page-title-ventas {
+        color: #0D0D0D;
+        font-weight: 700;
+        font-size: 2rem;
+        margin: 0 0 25px 0;
+        /* Acento Naranja */
+        border-left: 8px solid #F28F16;
+        padding-left: 20px;
+    }
+
+    /* Card General (Bordes redondeados y sombra suave) */
+    .card-ventas {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Header 1: Información del Cliente (Color Verde) */
+    .bg-brand-info-header {
+        background-color: #8AA624 !important;
+        color: white !important;
+        border-radius: 12px 12px 0 0;
+    }
+
+    /* Header 2: Platillos (Color Naranja) */
+    .bg-brand-items-header {
+        background-color: #F28F16 !important;
+        color: white !important;
+        border-radius: 12px 12px 0 0;
+    }
+
+    /* Botón "Agregar Platillo" (Outline Verde) */
+    .btn-brand-outline-green {
+        color: #8AA624;
+        border: 2px solid #8AA624;
+        background-color: white;
+        font-weight: 600;
+        transition: all 0.2s;
+        border-radius: 8px; /* Aplicamos redondez */
+    }
+
+        .btn-brand-outline-green:hover {
+            background-color: #8AA624;
+            color: white;
+        }
+
+    /* Tabla - Encabezado (Color Negro) */
+    .table-header-brand-dark th {
+        background-color: #0D0D0D !important;
+        color: #F2E2C4; /* Texto color Crema */
+        border-bottom: none;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
+
+    /* Tabla - Fila de Total (Tinte Verde) */
+    .table-brand-total-row {
+        background-color: rgba(138, 166, 36, 0.2) !important;
+        border-top: 2px solid #8AA624; /* Acento verde */
+    }
+
+    /* Input del Total Final */
+    #totalDisplay {
+        background-color: #F2E2C4 !important; /* Resaltado con color Crema */
+        color: #D9580D !important; /* Texto del total en naranja oscuro */
+        font-size: 1.4rem !important;
+        border: none !important;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+
+            <h2 class="page-title-ventas">
+                <i class="bi bi-pencil-square"></i> EDITAR VENTA #@Model.IdVenta
+            </h2>
+
+            <form asp-action="Edit" method="post" id="formVenta">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <input type="hidden" asp-for="IdVenta" />
+
+                <div class="card card-ventas mb-4">
+                    <div class="card-header bg-brand-info-header">
+                        <h5 class="mb-0 fw-bold"><i class="bi bi-info-circle-fill me-2"></i> Información de la Venta</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="NombreCliente" class="form-label fw-bold">Nombre del Cliente</label>
+                                    <input asp-for="NombreCliente" class="form-control input-custom" placeholder="Ingrese el nombre del cliente" />
+                                    <span asp-validation-for="NombreCliente" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Usuario" class="form-label fw-bold">Usuario (Vendedor)</label>
+                                    <input asp-for="Usuario" class="form-control input-custom" readonly />
+                                    <span asp-validation-for="Usuario" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-ventas mb-4">
+                    <div class="card-header bg-brand-items-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold"><i class="bi bi-list-check me-2"></i> Detalle de Platillos</h5>
+                        <button type="button" class="btn btn-brand-outline-green btn-sm" onclick="agregarDetalle()">
+                            <i class="bi bi-plus-circle"></i> Agregar Platillo
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="tablaDetalles">
+                                <thead class="table-header-brand-dark">
+                                    <tr>
+                                        <th>Platillo</th>
+                                        <th style="width: 120px;">Cantidad</th>
+                                        <th style="width: 150px;">Precio Unit.</th>
+                                        <th style="width: 150px;">Subtotal</th>
+                                        <th style="width: 80px;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detallesContainer">
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-brand-total-row">
+                                        <td colspan="3" class="text-end"><strong>TOTAL:</strong></td>
+                                        <td colspan="2">
+                                            <input type="text" id="totalDisplay" class="form-control fw-bold" readonly value="@Model.TotalV.ToString("C2")" />
+                                            <input type="hidden" asp-for="TotalV" id="totalHidden" />
+                                            
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    @if (User.IsInRole("admin"))
+                    {
+                        <a asp-action="Index" class="btn btn-outline-secondary-brand btn-lg">
+                            <i class="bi bi-arrow-left"></i> Regresar a Lista de Ventas
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-action="Index" asp-controller="POS" class="btn btn-outline-secondary-brand btn-lg">
+                            <i class="bi bi-arrow-left"></i> Regresar al Inició
+                        </a>
+                    }
+
+                    <button type="submit" class="btn btn-brand-gradient btn-lg">
+                        <i class="bi bi-save-fill me-2"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+       
+        const detallesIniciales = @Html.Raw(Json.Serialize(Model.Detalles));
+
+        let detalleIndex = 0;
+        const platillos = @Html.Raw(Json.Serialize(ViewBag.Platillos));
+
+        function dibujarFilaDetalle(detalle, esExistente = false) {
+            const container = document.getElementById('detallesContainer');
+            const index = detalleIndex++;
+
+            // Si es existente, usamos sus valores; si no, usamos valores por defecto (1, 0.00)
+            const idPlatillo = detalle?.IdPlatillo || '';
+            const cantidad = parseInt(detalle?.Cantidad) || 1;
+            const precio = parseFloat(detalle?.PrecioUnitario) || 0;
+            const nombrePlatillo = detalle?.NombrePlatillo || '';
+
+            // Corregimos el error toFixed: si el precio es 0, toFixed funciona bien.
+            const subtotalValor = cantidad * precio;
+
+            const row = document.createElement('tr');
+            row.id = `detalle-${index}`;
+            row.innerHTML = `
+                <td>
+                    <select name="Detalles[${index}].IdPlatillo"
+                            id="platillo-${index}"
+                            class="form-select platillo-select"
+                            required
+                            onchange="cargarPrecio(${index})">
+                        <option value="">-- Seleccione un platillo --</option>
+                        ${platillos.map(p =>
+                            // CLAVE: Marcar la opción seleccionada si es un detalle existente
+                            `<option value="${p.value}" ${p.value == idPlatillo ? 'selected' : ''}>${p.text}</option>`
+                        ).join('')}
+                    </select>
+                    <input type="hidden" name="Detalles[${index}].NombrePlatillo" id="nombrePlatillo-${index}" value="${nombrePlatillo}" />
+                </td>
+                <td>
+                    <input type="number"
+                           name="Detalles[${index}].Cantidad"
+                           id="cantidad-${index}"
+                           class="form-control cantidad-input"
+                           min="1"
+                           value="${cantidad}"
+                           required
+                           onchange="calcularSubtotal(${index})" />
+                </td>
+                <td>
+                    <input type="number"
+                           name="Detalles[${index}].PrecioUnitario"
+                           id="precio-${index}"
+                           class="form-control"
+                           step="0.01"
+                           readonly
+                           value="${precio.toFixed(2)}"
+                           required />
+                </td>
+                <td>
+                    <input type="text"
+                           id="subtotal-${index}"
+                           class="form-control subtotal-display"
+                           readonly
+                           value="$${subtotalValor.toFixed(2)}" />
+                </td>
+                <td>
+                    <button type="button"
+                            class="btn btn-danger btn-sm"
+                            onclick="eliminarDetalle(${index})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            `;
+
+            container.appendChild(row);
+        }
+
+        // Ahora `agregarDetalle` llama a la función de dibujo genérica sin datos
+        function agregarDetalle() {
+            dibujarFilaDetalle(null, false);
+            actualizarOpcionesPlatillos();
+        }
+
+            document.addEventListener('DOMContentLoaded', function() {
+        // 1. DIBUJAR TODAS LAS FILAS
+        if (detallesIniciales && detallesIniciales.length > 0) {
+            detallesIniciales.forEach(detalle => {
+                // Llama a dibujarFilaDetalle para crear cada fila
+                dibujarFilaDetalle(detalle, true);
+            });
+        } else {
+            // Si no hay detalles (ej. Venta sin ítems, o si es la vista Create), agrega uno vacío
+            agregarDetalle();
+        }
+            // Siempre recalcular al inicio para asegurar el total y las opciones
+            calcularTotal();
+            actualizarOpcionesPlatillos();
+        });
+             
+        async function cargarPrecio(index) {
+            const selectPlatillo = document.getElementById(`platillo-${index}`);
+            const idPlatillo = selectPlatillo.value;
+
+            if (!idPlatillo) {
+                document.getElementById(`precio-${index}`).value = '';
+                document.getElementById(`nombrePlatillo-${index}`).value = '';
+                calcularSubtotal(index);
+                actualizarOpcionesPlatillos();
+                return;
+            }
+
+            try {
+                // Si ya tienes los datos en el front-end (como NombrePlatillo), podrías evitar la llamada fetch
+                // Pero manteniendo tu código original:
+                const response = await fetch(`/Ventas/GetPrecioPlatillo?id=${idPlatillo}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById(`precio-${index}`).value = data.precio;
+                    document.getElementById(`nombrePlatillo-${index}`).value = data.nombre;
+                    calcularSubtotal(index);
+                    actualizarOpcionesPlatillos();
+                } else {
+                    alert('Error al obtener el precio del platillo');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al conectar con el servidor');
+            }
+        }
+
+        function calcularSubtotal(index) {
+            const cantidad = parseFloat(document.getElementById(`cantidad-${index}`).value) || 0;
+            const precio = parseFloat(document.getElementById(`precio-${index}`).value) || 0;
+            const subtotal = cantidad * precio;
+
+            document.getElementById(`subtotal-${index}`).value = `$${subtotal.toFixed(2)}`;
+            calcularTotal();
+        }
+
+        function calcularTotal() {
+            let total = 0;
+            const rows = document.querySelectorAll('#detallesContainer tr');
+
+            rows.forEach(row => {
+                const id = row.id.split('-')[1];
+                const cantidad = parseFloat(document.getElementById(`cantidad-${id}`).value) || 0;
+                const precio = parseFloat(document.getElementById(`precio-${id}`).value) || 0;
+                total += cantidad * precio;
+            });
+
+            const totalFinal = isNaN(total) ? 0 : total;
+
+            document.getElementById('totalDisplay').value = `${totalFinal.toFixed(2)}`;
+            document.getElementById('totalHidden').value = totalFinal.toString();
+        }
+
+        function eliminarDetalle(index) {
+            const row = document.getElementById(`detalle-${index}`);
+            if (row) {
+                row.remove();
+                calcularTotal();
+                actualizarOpcionesPlatillos();
+            }
+        }
+
+        // Función para verificar si un platillo ya está seleccionado
+        function verificarPlatilloDuplicado(idPlatillo, indexActual) {
+            const rows = document.querySelectorAll('#detallesContainer tr');
+
+            for (let row of rows) {
+                const id = row.id.split('-')[1];
+                if (id != indexActual) {
+                    const selectPlatillo = document.getElementById(`platillo-${id}`);
+                    if (selectPlatillo && selectPlatillo.value === idPlatillo) {
+                        return id; // Retorna el índice de la fila donde ya existe
+                    }
+                }
+            }
+            return null; // No existe duplicado
+        }
+
+        // Función para actualizar las opciones disponibles en todos los selects
+        function actualizarOpcionesPlatillos() {
+            const rows = document.querySelectorAll('#detallesContainer tr');
+
+            // Obtener todos los platillos ya seleccionados
+            const platillosSeleccionados = [];
+            rows.forEach(row => {
+                const id = row.id.split('-')[1];
+                const selectPlatillo = document.getElementById(`platillo-${id}`);
+                if (selectPlatillo && selectPlatillo.value) {
+                    platillosSeleccionados.push(selectPlatillo.value);
+                }
+            });
+
+            // Actualizar cada select
+            rows.forEach(row => {
+                const id = row.id.split('-')[1];
+                const selectPlatillo = document.getElementById(`platillo-${id}`);
+                if (selectPlatillo) {
+                    const valorActual = selectPlatillo.value;
+
+                    // Actualizar las opciones del select
+                    Array.from(selectPlatillo.options).forEach(option => {
+                        if (option.value) { // Ignorar la opción por defecto
+                            const estaSeleccionadoEnOtraFila = platillosSeleccionados.includes(option.value)
+                                                                && option.value !== valorActual;
+                            option.disabled = estaSeleccionadoEnOtraFila;
+
+                            // Lógica de estilo (✓)
+                            const textoLimpio = option.textContent.replace('✓ ', '');
+                            if (estaSeleccionadoEnOtraFila) {
+                                option.style.color = '#ccc';
+                                option.textContent = `✓ ${textoLimpio}`;
+                            } else {
+                                option.style.color = '';
+                                option.textContent = textoLimpio;
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        // Validar que haya al menos un detalle antes de enviar
+        document.getElementById('formVenta').addEventListener('submit', function(e) {
+            const detalles = document.querySelectorAll('#detallesContainer tr');
+            if (detalles.length === 0) {
+                e.preventDefault();
+                alert('Debe agregar al menos un platillo a la venta');
+                return false;
+            }
+
+            // Validar que todos los platillos tengan precio
+            let valido = true;
+            detalles.forEach(row => {
+                const id = row.id.split('-')[1];
+                const precio = document.getElementById(`precio-${id}`).value;
+                if (!precio || parseFloat(precio) <= 0) {
+                    valido = false;
+                }
+            });
+
+            if (!valido) {
+                e.preventDefault();
+                alert('Todos los platillos deben tener un precio válido');
+                return false;
+            }
+        });
+
+    </script>
+}

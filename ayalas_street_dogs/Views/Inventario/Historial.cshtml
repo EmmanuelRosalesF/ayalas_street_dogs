@@ -1,0 +1,96 @@
+﻿@model List<ayalas_street_dogs.Models.AjusteInventario>
+@{
+    ViewData["Title"] = "Historial Ajustes";
+    var ingrediente = ViewBag.Ingrediente as ayalas_street_dogs.Models.Ingrediente;
+}
+
+    <style>
+        .card-custom {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(13,13,13,0.1);
+            background: #fff;
+        }
+
+        .card-header-custom {
+            background: #fff;
+            padding: 20px 30px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            color: #0D0D0D;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin: 0;
+            border-left: 5px solid #F28F16;
+            padding-left: 12px;
+        }
+
+        .btn-outline-brand {
+            color: #F28F16 !important;
+            background: #fff !important;
+            border: 1px solid #F28F16 !important;
+            border-radius: 8px;
+            padding: 8px 16px;
+        }
+
+        .table-custom thead th {
+            background: #8AA624;
+            color: #fff;
+            border: none;
+        }
+    </style>
+
+<div class="container mt-5">
+    <div class="card card-custom">
+        <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="page-title">HISTORIAL DE AJUSTES</h1>
+                @if (ingrediente != null)
+                {
+                    <small class="text-muted">Ingrediente: @ingrediente.Nombre</small>
+                }
+            </div>
+            <a asp-action="Index" class="btn btn-outline-brand">Volver</a>
+        </div>
+
+        <div class="card-body p-0">
+            @if (Model == null || !Model.Any())
+            {
+                <div class="p-4">No hay movimientos registrados para este ingrediente.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Cantidad</th>
+                                <th>Motivo</th>
+                                <th>Usuario</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var a in Model)
+                            {
+                                <tr>
+                                    <td>@a.FechaAjuste.ToString("g")</td>
+                                    <td><span class="badge @(a.TipoMovimiento == "ENTRADA" ? "badge-ok" : "badge-bajo")">@a.TipoMovimiento</span></td>
+                                    <td>@a.Cantidad.ToString("0.###") @ingrediente?.UnidadMedida</td>
+                                    <td>@a.Motivo</td>
+                                    <td>@a.Usuario</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

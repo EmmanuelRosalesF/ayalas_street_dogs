@@ -1,0 +1,116 @@
+﻿@model ayalas_street_dogs.Models.ViewModels.ReporteInventarioViewModel
+
+@{
+    Layout = null; 
+    var logo = ViewData["LogoBase64"] as string ?? "";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Reporte Inventario</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #222;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            padding: 18px 22px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .title {
+            font-weight: 700;
+            color: #0D0D0D;
+            font-size: 18px;
+            border-left: 5px solid #F28F16;
+            padding-left: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 12px;
+        }
+
+        th, td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e9e9e9;
+            text-align: left;
+        }
+
+        th {
+            background: #f7f7f7;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .right {
+            text-align: right;
+        }
+
+        .total-row td {
+            font-weight: 700;
+            background: #fff8e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <div class="title">REPORTE DE INVENTARIO</div>
+                <div style="font-size:11px; color:#666; margin-top:4px;">Fecha: @Model.Fecha.ToString("g")</div>
+            </div>
+            <div>
+                @if (!string.IsNullOrEmpty(logo))
+                {
+                    <img src="@logo" alt="Logo" style="height:56px;" />
+                }
+            </div>
+        </header>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Ingrediente</th>
+                    <th class="right">Stock Actual</th>
+                    <th class="right">Stock Mínimo</th>
+                    <th>Unidad</th>
+                    <th class="right">Costo Unitario</th>
+                    <th class="right">Valor Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Ingredientes)
+                {
+                    var valor = item.StockActual * item.CostoUnitarioPromedio;
+                    <tr>
+                        <td>@item.Nombre</td>
+                        <td class="right">@item.StockActual.ToString("0.###")</td>
+                        <td class="right">@item.StockMinimo.ToString("0.###")</td>
+                        <td>@item.UnidadMedida</td>
+                        <td class="right">$@item.CostoUnitarioPromedio.ToString("0.####")</td>
+                        <td class="right">$@valor.ToString("0.00")</td>
+                    </tr>
+                }
+                <tr class="total-row">
+                    <td colspan="5" class="right">Valor total inventario</td>
+                    <td class="right">$@Model.ValorTotalInventario.ToString("0.00")</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

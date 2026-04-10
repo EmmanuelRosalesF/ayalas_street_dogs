@@ -1,0 +1,88 @@
+﻿@model ayalas_street_dogs.Models.Ingrediente
+@{
+    ViewData["Title"] = "Eliminar Ingrediente";
+}
+
+    <style>
+        .card-custom {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(13,13,13,0.1);
+            background: #fff;
+        }
+
+        .card-header-custom {
+            background: #fff;
+            padding: 20px 30px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            color: #0D0D0D;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin: 0;
+            border-left: 5px solid #F28F16;
+            padding-left: 12px;
+        }
+
+        .btn-outline-brand {
+            color: #F28F16 !important;
+            background: #fff !important;
+            border: 1px solid #F28F16 !important;
+            border-radius: 8px;
+            padding: 8px 16px;
+        }
+
+        .btn-danger-brand {
+            background: #D9580D;
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .form-control:focus {
+            border-color: #F28F16 !important;
+            box-shadow: 0 0 0 .15rem rgba(242,143,22,.12) !important;
+        }
+    </style>
+
+<div class="container mt-5">
+    <div class="card card-custom">
+        <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <h1 class="page-title">ELIMINAR INGREDIENTE</h1>
+            <a asp-action="Index" class="btn btn-outline-brand">Volver</a>
+        </div>
+
+        <div class="card-body">
+            <h5 class="mb-4">¿Estás seguro que deseas eliminar este ingrediente?</h5>
+            <dl class="row">
+                <dt class="col-sm-3">Nombre</dt>
+                <dd class="col-sm-9">@Model.Nombre</dd>
+
+                <dt class="col-sm-3">Stock Actual</dt>
+                <dd class="col-sm-9">@Model.StockActual.ToString("0.###")</dd>
+
+                <dt class="col-sm-3">Unidad</dt>
+                <dd class="col-sm-9">@Model.UnidadMedida</dd>
+
+                <dt class="col-sm-3">Costo Unitario</dt>
+                <dd class="col-sm-9">$@Model.CostoUnitarioPromedio.ToString("0.####")</dd>
+            </dl>
+
+            <form asp-action="Delete" method="post">
+                @Html.AntiForgeryToken()
+                <input asp-for="IdIngrediente" type="hidden" />
+                <div class="text-end">
+                    <a asp-action="Index" class="btn btn-outline-brand me-2">Cancelar</a>
+                    <button type="submit" class="btn btn-danger-brand">Eliminar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

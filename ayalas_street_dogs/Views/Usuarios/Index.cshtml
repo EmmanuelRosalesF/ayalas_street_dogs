@@ -1,0 +1,88 @@
+﻿@model IEnumerable<ayalas_street_dogs.Models.Usuario>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="container mt-5">
+    <div class="card card-custom">
+        <div class="card-header-custom">
+            <h1 class="page-title">GESTIÓN DE USUARIOS</h1>
+            <a asp-action="Create" class="btn btn-brand-gradient">
+                <i class="bi bi-patch-plus-fill me-2"></i> Nuevo Usuario
+            </a>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="bi bi-person-fill me-2"></i> Nombre de Usuario
+                            </th>
+                            <th>
+                                <i class="bi bi-tag-fill me-2"></i> Nombres
+                            </th>
+                            <th>
+                                <i class="bi bi-tag-fill me-2"></i> Apellidos
+                            </th>
+                            <th>
+                                <i class="bi bi-envelope-at-fill me-2"></i> Correo
+                            </th>
+                            <th>
+                                <i class="bi bi-phone-fill me-2"></i> Télefono Celular
+                            </th>
+                            <th>
+                                <i class="bi bi-list-ol me-2"></i> Rol
+                            </th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">
+                                    @Html.DisplayFor(modelItem => item.Usuario1)
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill" style="background-color: #F2E2C4; color: #D9580D;">
+                                        @Html.DisplayFor(modelItem => item.Nombres)
+                                    </span>
+                                </td>
+                                <td class="fw-bold">
+                                    @Html.DisplayFor(modelItem => item.Apellidos)
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill" style="background-color: #F2E2C4; color: #D9580D;">
+                                        @Html.DisplayFor(modelItem => item.EmailUsuario)
+                                    </span>
+                                </td>
+                                <td class="fw-bold">
+                                    @Html.DisplayFor(modelItem => item.TelefonoUsuario)
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill" style="background-color: #F2E2C4; color: #D9580D;">
+                                        @Html.DisplayFor(modelItem => item.Rol)
+									</span>
+                                <td class="text-end pe-4">
+
+                                    <a asp-action="Edit" asp-route-id="@item.Usuario1" class="btn-action btn-edit" title="Editar">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.Usuario1" class="btn-action btn-details" title="Detalles">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Usuario1" class="btn-action btn-delete" title="Eliminar">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

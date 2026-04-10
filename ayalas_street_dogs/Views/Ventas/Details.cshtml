@@ -1,0 +1,192 @@
+﻿@model ayalas_street_dogs.Models.Ventum
+
+@{
+    ViewData["Title"] = "Detalles de Venta";
+}
+
+<style>
+    /* Estilo de Tarjeta (Reutilizando el estilo de Venta/Crear) */
+    .card-details-brand {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Estilo para los Badges (Cantidad y Tipos de Platillos) */
+    .badge-brand-info {
+        background-color: #F28F16 !important; /* Naranja */
+        color: white;
+        padding: 0.5em 0.8em;
+        font-weight: 600;
+        min-width: 40px;
+    }
+
+    .badge-brand-secondary {
+        background-color: #8AA624 !important; /* Verde */
+        color: white;
+        padding: 0.5em 0.8em;
+        font-weight: 600;
+        min-width: 40px;
+    }
+
+    /* Total Final de Venta */
+    .total-final-brand {
+        color: #D9580D !important; /* Naranja Oscuro de la marca */
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    /* DL List Styling (Para la sección de Información General) */
+    dl dt {
+        font-weight: bold;
+        color: #0D0D0D;
+    }
+
+    dl dd {
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-title-ventas">
+            <i class="bi bi-receipt-cutoff me-2"></i> Detalles de Venta #@Model.IdVenta
+        </h2>
+        <a asp-action="Index" class="btn btn-outline-secondary-brand btn-lg">
+            <i class="bi bi-arrow-left"></i> Volver al Listado
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card card-details-brand">
+                <div class="card-header bg-brand-info-header">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-file-earmark-text me-2"></i> Información General</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">ID Venta:</dt>
+                        <dd class="col-sm-8 fw-bold">#@Model.IdVenta</dd>
+
+                        <dt class="col-sm-4">Fecha:</dt>
+                        <dd class="col-sm-8">@Model.FechaV?.ToString("dd/MM/yyyy HH:mm:ss")</dd>
+
+                        <dt class="col-sm-4">Cliente:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge badge-brand-info fs-6">@Model.NombreCliente</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Vendedor:</dt>
+                        <dd class="col-sm-8">
+                            <span class="fw-bold">@Model.Usuario</span>
+                            @if (Model.UsuarioNavigation != null)
+                            {
+                                <br />
+                                <small class="text-muted">
+                                    @Model.UsuarioNavigation.Nombres @Model.UsuarioNavigation.Apellidos
+                                </small>
+                            }
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card card-details-brand">
+                <div class="card-header bg-brand-items-header">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-bar-chart-fill me-2"></i> Resumen de Venta</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-6">Cantidad Total de Items:</dt>
+                        <dd class="col-sm-6">
+                            <span class="badge badge-brand-info fs-6">
+                                @Model.Detalleventa.Sum(d => d.CantidadDv)
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-6">Tipos de Platillos Únicos:</dt>
+                        <dd class="col-sm-6">
+                            <span class="badge badge-brand-secondary fs-6">
+                                @Model.Detalleventa.Count
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-6 border-top pt-3 mt-3">
+                            <h5 class="fw-bold text-end">TOTAL FACTURADO:</h5>
+                        </dt>
+                        <dd class="col-sm-6 border-top pt-3 mt-3">
+                            <h4 class="total-final-brand">
+                                $@Model.TotalV.ToString("N2")
+                            </h4>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-details-brand">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-bag-check-fill me-2"></i> Platillos Vendidos</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-header-brand-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Platillo</th>
+                            <th>Descripción</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-end">Precio Unit.</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int contador = 1;
+                        }
+                        @foreach (var detalle in Model.Detalleventa.OrderBy(d => d.IdPlatillo))
+                        {
+                            var subtotal = detalle.CantidadDv * detalle.CostoDv;
+                            <tr>
+                                <td>@contador</td>
+                                <td class="fw-bold">
+                                    @detalle.IdPlatilloNavigation?.NombrePlatillo
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        @detalle.IdPlatilloNavigation?.Descripcion
+                                    </small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge badge-brand-info">
+                                        @detalle.CantidadDv
+                                    </span>
+                                </td>
+                                <td class="text-end">$@detalle.CostoDv.ToString("N2")</td>
+                                <td class="text-end fw-bold text-success">$@subtotal.ToString("N2")</td>
+                            </tr>
+                            contador++;
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-brand-total-row">
+                            <td colspan="5" class="text-end fw-bold">GRAN TOTAL:</td>
+                            <td class="text-end fw-bold fs-5 total-final-brand">$@Model.TotalV.ToString("N2")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 pb-4">
+        <a asp-action="Index" class="btn btn-outline-secondary-brand btn-lg">
+            <i class="bi bi-arrow-left"></i> Volver al Listado
+        </a>
+    </div>
+</div>

@@ -1,0 +1,388 @@
+﻿@model ayalas_street_dogs.Controllers.DesactivarIngredienteViewModel
+
+@{
+    ViewData["Title"] = "Desactivar Ingrediente";
+}
+
+<div class="container mt-5">
+    <div class="card card-custom">
+        <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <h1 class="page-title">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                DESACTIVAR INGREDIENTE
+            </h1>
+            <a asp-action="Index" class="btn btn-outline-brand">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+        <div class="card-body">
+            <!-- Alerta de advertencia -->
+            <div class="alert alert-warning-custom" role="alert">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-info-circle-fill fs-3 me-3"></i>
+                    <div>
+                        <h5 class="alert-heading mb-2">⚠️ ¿Qué significa desactivar?</h5>
+                        <p class="mb-2">Al desactivar este ingrediente:</p>
+                        <ul class="mb-0">
+                            <li>✅ Se mantendrá todo el historial de compras y ajustes</li>
+                            <li>✅ Los datos no se eliminarán de la base de datos</li>
+                            <li>✅ Podrás reactivarlo cuando lo necesites</li>
+                            <li>⚠️ No aparecerá en la lista principal de ingredientes</li>
+                            <li>⚠️ No podrás usarlo en nuevas compras o ajustes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del ingrediente -->
+            <div class="info-card mb-4">
+                <h5 class="info-title mb-3">
+                    <i class="bi bi-box-seam me-2"></i>
+                    Información del Ingrediente
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="info-item">
+                            <span class="info-label">Nombre:</span>
+                            <span class="info-value">@Model.Nombre</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-item">
+                            <span class="info-label">Stock Actual:</span>
+                            <span class="info-value badge-stock">
+                                @Model.StockActual.ToString("0.###") @Model.UnidadMedida
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-item">
+                            <span class="info-label">ID:</span>
+                            <span class="info-value">#@Model.IdIngrediente</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas de uso -->
+            <div class="info-card mb-4">
+                <h5 class="info-title mb-3">
+                    <i class="bi bi-bar-chart-fill me-2"></i>
+                    Registros Relacionados
+                </h5>
+                <div class="row g-3 text-center">
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <i class="bi bi-clipboard-data stat-icon"></i>
+                            <div class="stat-number">@Model.TotalAjustes</div>
+                            <div class="stat-label">Ajustes de Inventario</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <i class="bi bi-egg-fried stat-icon"></i>
+                            <div class="stat-number">@Model.TotalPlatillos</div>
+                            <div class="stat-label">Platillos que lo usan</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <i class="bi bi-cart-check stat-icon"></i>
+                            <div class="stat-number">@Model.TotalCompras</div>
+                            <div class="stat-label">Registros de Compra</div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.TotalAjustes > 0 || Model.TotalPlatillos > 0 || Model.TotalCompras > 0)
+                {
+                    <div class="alert alert-info-custom mt-3 mb-0">
+                        <i class="bi bi-shield-check me-2"></i>
+                        <strong>Historial Protegido:</strong> Este ingrediente tiene registros asociados que se preservarán al desactivarlo.
+                    </div>
+                }
+            </div>
+
+            <!-- Formulario de desactivación -->
+            <form asp-action="DesactivarConfirmed" method="post">
+                @Html.AntiForgeryToken()
+                <input asp-for="IdIngrediente" type="hidden" />
+
+                <div class="form-group mb-4">
+                    <label asp-for="Motivo" class="form-label fw-bold">
+                        Motivo de Desactivación <span class="text-danger">*</span>
+                    </label>
+                    <textarea asp-for="Motivo"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Ej: Ya no se ofrece en el menú, cambio de proveedor, producto descontinuado, etc."
+                              required
+                              maxlength="200"></textarea>
+                    <span asp-validation-for="Motivo" class="text-danger small"></span>
+                    <small class="form-text text-muted">
+                        <i class="bi bi-info-circle"></i>
+                        Este motivo quedará registrado en el historial
+                    </small>
+                </div>
+
+                <!-- Confirmación final -->
+                <div class="confirmation-box mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="confirmarDesactivacion"
+                               required>
+                        <label class="form-check-label fw-bold" for="confirmarDesactivacion">
+                            Confirmo que deseo desactivar el ingrediente "@Model.Nombre"
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="d-flex justify-content-end gap-3">
+                    <a asp-action="Index" class="btn btn-secondary-custom">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-danger-custom" id="btnDesactivar">
+                        <i class="bi bi-toggle-off"></i> Desactivar Ingrediente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Prevenir envío accidental
+        document.getElementById('btnDesactivar').addEventListener('click', function(e) {
+            var checkbox = document.getElementById('confirmarDesactivacion');
+            if (!checkbox.checked) {
+                e.preventDefault();
+                alert('Debe confirmar que desea desactivar el ingrediente');
+                checkbox.focus();
+                return false;
+            }
+
+            // Confirmación adicional
+            if (!confirm('¿Está completamente seguro de desactivar "' + '@Model.Nombre' + '"?')) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Deshabilitar botón
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Desactivando...';
+        });
+
+        // Contador de caracteres
+        var motivo = document.querySelector('textarea[name="Motivo"]');
+        if (motivo) {
+            var counter = document.createElement('small');
+            counter.className = 'form-text text-muted float-end';
+            motivo.parentElement.appendChild(counter);
+
+            function updateCounter() {
+                var length = motivo.value.length;
+                counter.textContent = length + ' / 200 caracteres';
+                counter.style.color = length > 180 ? '#D9580D' : '#8AA624';
+            }
+
+            motivo.addEventListener('input', updateCounter);
+            updateCounter();
+        }
+    </script>
+
+    <style>
+        /* Paleta de colores */
+        :root {
+            --verde-lima: #8AA624;
+            --beige: #F2E2C4;
+            --naranja: #F28F16;
+            --rojo-naranja: #D9580D;
+            --negro: #0D0D0D;
+        }
+
+        .card-custom {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(13, 13, 13, 0.15);
+            border: none;
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, #D9580D 0%, #F28F16 100%);
+            color: var(--beige);
+            padding: 1.5rem;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--beige);
+        }
+
+        .btn-outline-brand {
+            border: 2px solid var(--beige);
+            color: var(--beige);
+            background: transparent;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+            .btn-outline-brand:hover {
+                background: var(--beige);
+                color: var(--rojo-naranja);
+            }
+
+        .alert-warning-custom {
+            background-color: rgba(242, 143, 22, 0.1);
+            border-left: 4px solid var(--naranja);
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+
+            .alert-warning-custom .alert-heading {
+                color: var(--naranja);
+                font-weight: 600;
+            }
+
+        .alert-info-custom {
+            background-color: rgba(138, 166, 36, 0.1);
+            border-left: 4px solid var(--verde-lima);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .info-card {
+            background: var(--beige);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid var(--verde-lima);
+        }
+
+        .info-title {
+            color: var(--negro);
+            font-weight: 600;
+            border-bottom: 2px solid var(--naranja);
+            padding-bottom: 0.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: var(--negro);
+            font-weight: 600;
+        }
+
+        .badge-stock {
+            background: var(--verde-lima);
+            color: var(--beige);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid var(--beige);
+            transition: all 0.3s ease;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 4px 12px rgba(138, 166, 36, 0.2);
+                border-color: var(--verde-lima);
+            }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            color: var(--naranja);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--verde-lima);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .confirmation-box {
+            background: rgba(217, 88, 13, 0.05);
+            border: 2px dashed var(--rojo-naranja);
+            border-radius: 10px;
+            padding: 1.25rem;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--rojo-naranja);
+            border-color: var(--rojo-naranja);
+        }
+
+        .btn-danger-custom {
+            background: linear-gradient(135deg, var(--rojo-naranja) 0%, var(--naranja) 100%);
+            border: none;
+            color: var(--beige);
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .btn-danger-custom:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(217, 88, 13, 0.4);
+                color: var(--beige);
+            }
+
+        .btn-secondary-custom {
+            background: transparent;
+            border: 2px solid var(--negro);
+            color: var(--negro);
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+            .btn-secondary-custom:hover {
+                background: var(--negro);
+                color: white;
+            }
+
+        .form-control:focus,
+        .form-check-input:focus {
+            border-color: var(--naranja);
+            box-shadow: 0 0 0 0.2rem rgba(242, 143, 22, 0.25);
+        }
+
+        textarea.form-control {
+            border: 2px solid var(--beige);
+            border-radius: 8px;
+        }
+
+        .text-danger {
+            color: var(--rojo-naranja) !important;
+        }
+    </style>
+}

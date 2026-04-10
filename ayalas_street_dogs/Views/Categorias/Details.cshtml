@@ -1,0 +1,39 @@
+﻿@model ayalas_street_dogs.Models.Categorium
+
+@{
+    ViewData["Title"] = "Detalles";
+}
+
+<div class="container mt-5">
+    <div class="card card-custom mx-auto" style="max-width: 550px;">
+        <h1 class="page-title">DETALLES DE CATEGORÍA CON ID. @Html.DisplayFor(model => model.IdCategoria)</h1>
+
+        <dl class="row mb-4">
+            <dt class="col-sm-4 fw-bold text-end">
+                Nombre de Categoría:
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.NombreCategoria)
+            </dd>
+
+            <dt class="col-sm-4 fw-bold text-end">
+                Tipo:
+            </dt>
+            <dd class="col-sm-8">
+                <span class="badge rounded-pill" style="background-color: #F28F16; color: white; padding: 0.5em 0.8em;">
+                    @Html.DisplayFor(model => model.Tipo)
+                </span>
+            </dd>
+        </dl>
+
+        <div class="text-center mt-3">
+            <a asp-action="Edit" asp-route-id="@Model?.IdCategoria" class="btn btn-sm btn-edit me-3" style="background-color: #F28F16; color: white;">
+                <i class="bi bi-pencil-fill me-1"></i> Editar
+            </a>
+
+            <a asp-action="Index" class="btn btn-outline-secondary-brand">
+                <i class="bi bi-arrow-left-circle-fill me-1"></i> Regresar a Categorías
+            </a>
+        </div>
+    </div>
+</div>

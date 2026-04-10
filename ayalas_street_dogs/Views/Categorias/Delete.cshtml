@@ -1,0 +1,48 @@
+﻿@model ayalas_street_dogs.Models.Categorium
+
+@{
+    ViewData["Title"] = "Eliminar Categoría";
+}
+
+<div class="container mt-5">
+    <div class="card card-custom mx-auto" style="max-width: 600px;">
+
+        <h1 class="page-title">ELIMINAR CATEGORÍA @Html.DisplayFor(model => model.IdCategoria)</h1>
+
+        <p class="lead text-center fw-bold text-brand-danger mb-4">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> ¿ESTÁ SEGURO QUE DESEA ELIMINAR ESTE REGISTRO?
+        </p>
+
+        <div class="bg-light p-4 rounded mb-4 border border-danger">
+            <dl class="row">
+                <dt class="col-sm-4 fw-bold text-end">
+                    Nombre de Categoría:
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.NombreCategoria)
+                </dd>
+
+                <dt class="col-sm-4 fw-bold text-end">
+                    Tipo:
+                </dt>
+                <dd class="col-sm-8">
+                    <span class="badge rounded-pill" style="background-color: #D9580D; color: white; padding: 0.5em 0.8em;">
+                        @Html.DisplayFor(model => model.Tipo)
+                    </span>
+                </dd>
+            </dl>
+        </div>
+
+        <form asp-action="Delete" class="text-center">
+            <input type="hidden" asp-for="IdCategoria" />
+
+            <button type="submit" class="btn btn-delete-final me-4">
+                <i class="bi bi-trash-fill me-1"></i> Confirmar Eliminación
+            </button>
+
+            <a asp-action="Index" class="btn btn-outline-secondary-brand">
+                <i class="bi bi-x-circle-fill me-1"></i> Cancelar
+            </a>
+        </form>
+    </div>
+</div>

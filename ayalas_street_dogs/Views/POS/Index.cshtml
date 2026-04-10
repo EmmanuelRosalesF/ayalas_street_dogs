@@ -1,0 +1,698 @@
+﻿@using ayalas_street_dogs.Models.ViewModels
+@model POSViewModel
+
+@{
+    Layout = "_LayoutEmpleado";
+}
+
+@{
+    ViewData["Title"] = "Punto de Venta";
+}
+
+<style>
+    :root {
+        --color-primary: #8AA624;
+        --color-secondary: #F2E2C4;
+        --color-accent: #F28F16;
+        --color-danger: #D9580D;
+        --color-dark: #0D0D0D;
+    }
+
+    .pos-container {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 20px;
+        height: calc(100vh - 150px);
+        margin: -20px -30px;
+        padding: 20px;
+        background: #f8f9fa;
+    }
+
+    /* Sección de Productos */
+    .productos-section {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        overflow-y: auto;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .categorias-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        position: sticky;
+        top: 0;
+        background: white;
+        padding-bottom: 15px;
+        z-index: 10;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .categoria-btn {
+        padding: 12px 24px;
+        border: 2px solid #e0e0e0;
+        background: white;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        color: var(--color-dark);
+    }
+
+        .categoria-btn:hover {
+            border-color: var(--color-primary);
+            background: rgba(138, 166, 36, 0.05);
+        }
+
+        .categoria-btn.active {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white;
+            border-color: transparent;
+        }
+
+    .productos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 15px;
+    }
+
+    .producto-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 16px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+        .producto-card:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(138, 166, 36, 0.2);
+        }
+
+        .producto-card:active {
+            transform: translateY(-2px);
+        }
+
+    .producto-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 12px;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+    }
+
+    .producto-nombre {
+        font-weight: 600;
+        color: var(--color-dark);
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+        line-height: 1.3;
+    }
+
+    .producto-precio {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--color-primary);
+    }
+
+    /* Sección de Carrito */
+    .carrito-section {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .carrito-header {
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+        margin-bottom: 15px;
+    }
+
+        .carrito-header h4 {
+            margin: 0;
+            color: var(--color-dark);
+            font-weight: 700;
+        }
+
+    .cliente-input {
+        margin-top: 12px;
+    }
+
+        .cliente-input input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+
+            .cliente-input input:focus {
+                border-color: var(--color-primary);
+                outline: none;
+            }
+
+    .carrito-items {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 15px;
+    }
+
+    .carrito-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        margin-bottom: 10px;
+    }
+
+    .item-info {
+        flex: 1;
+    }
+
+    .item-nombre {
+        font-weight: 600;
+        color: var(--color-dark);
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+    }
+
+    .item-precio {
+        color: #666;
+        font-size: 0.85rem;
+    }
+
+    .item-cantidad {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        border-radius: 8px;
+        padding: 4px;
+    }
+
+    .cantidad-btn {
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: var(--color-primary);
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+    }
+
+        .cantidad-btn:hover {
+            background: var(--color-accent);
+        }
+
+    .cantidad-display {
+        min-width: 30px;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .item-eliminar {
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: var(--color-danger);
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .carrito-vacio {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+    }
+
+        .carrito-vacio i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+    .carrito-footer {
+        border-top: 2px solid #f0f0f0;
+        padding-top: 15px;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .total-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--color-dark);
+    }
+
+    .total-amount {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--color-primary);
+    }
+
+    .btn-cobrar {
+        width: 100%;
+        padding: 16px;
+        border: none;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+        color: white;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+        .btn-cobrar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(138, 166, 36, 0.3);
+        }
+
+        .btn-cobrar:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+    .btn-limpiar {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid var(--color-danger);
+        background: white;
+        color: var(--color-danger);
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+        .btn-limpiar:hover {
+            background: var(--color-danger);
+            color: white;
+        }
+
+    /* Responsive */
+    @@media (max-width: 1200px) {
+        .pos-container {
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr auto;
+            height: auto;
+        }
+
+        .carrito-section {
+            position: sticky;
+            bottom: 0;
+            max-height: 400px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .productos-grid {
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        }
+
+        .producto-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<div class="pos-container">
+    <!-- Sección de Productos -->
+    <div class="productos-section">
+        <h3 class="mb-3"><i class="bi bi-grid-3x3-gap-fill text-primary"></i> Menú</h3>
+
+        <!-- Tabs de Categorías -->
+        <div class="categorias-tabs">
+            <button class="categoria-btn active" onclick="filtrarCategoria('todas')">
+                <i class="bi bi-grid-fill"></i> Todas
+            </button>
+            @foreach (var categoria in Model.Categorias)
+            {
+                <button class="categoria-btn" onclick="filtrarCategoria('@categoria.IdCategoriaMenu')">
+                    @categoria.NombreCategoriaMenu
+                </button>
+            }
+        </div>
+
+        <!-- Grid de Productos -->
+        <div class="productos-grid" id="productosGrid">
+            @foreach (var platillo in Model.Platillos)
+            {
+                <div class="producto-card"
+                     data-categoria="@platillo.IdCategoriaMenu"
+                     onclick="agregarAlCarrito(@platillo.IdPlatillo, '@platillo.NombrePlatillo', @platillo.Precio)">
+                    <div class="producto-icon">
+                        <i class="bi bi-@(ObtenerIcono(platillo.IdCategoriaMenuNavigation?.NombreCategoriaMenu))"></i>
+                    </div>
+                    <div class="producto-nombre">@platillo.NombrePlatillo</div>
+                    <div class="producto-precio">$@platillo.Precio.ToString("N2")</div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Sección de Carrito -->
+    <div class="carrito-section">
+        <div class="carrito-header">
+            <h4><i class="bi bi-cart-fill text-primary"></i> Pedido</h4>
+            <div class="cliente-input">
+                <input type="text"
+                       id="nombreCliente"
+                       placeholder="Nombre del cliente (opcional)"
+                       class="form-control">
+            </div>
+        </div>
+
+        <div class="carrito-items" id="carritoItems">
+            <div class="carrito-vacio">
+                <i class="bi bi-cart-x"></i>
+                <p>Selecciona productos del menú</p>
+            </div>
+        </div>
+
+        <div class="carrito-footer">
+            <div class="total-row">
+                <span class="total-label">Total:</span>
+                <span class="total-amount" id="totalAmount">$0.00</span>
+            </div>
+            <button class="btn-cobrar" id="btnCobrar" onclick="procesarVenta()" disabled>
+                <i class="bi bi-cash-coin"></i> Procesar Venta
+            </button>
+            <button class="btn-limpiar" onclick="limpiarCarrito()">
+                <i class="bi bi-trash"></i> Limpiar
+            </button>
+        </div>
+    </div>
+
+    <!-- Ventas Pendientes -->
+    <div class="col-12 mt-4">
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body p-0">
+                @if (Model.VentasPendientes.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Total</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+									<th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var venta in Model.VentasPendientes)
+                                {
+                                    var minutos = venta.FechaV.HasValue
+                                    ? (int)(DateTime.Now - venta.FechaV.Value).TotalMinutes
+                                    : 0;
+
+                                    var tiempo = minutos < 60 ? $"Hace {minutos} min" : $"Hace {minutos / 60}h";
+
+                                    <tr>
+                                        <td>#@venta.IdVenta</td>
+                                        <td>@venta.NombreCliente</td>
+                                        <td>@venta.PrimerProducto</td>
+                                        <td>@venta.CantidadProductos</td>
+                                        <td class="fw-semibold">$@venta.TotalV.ToString("N2")</td>
+                                        <td>@tiempo</td>
+                                        <td><span class="badge bg-warning text-dark">Pendiente</span></td>
+                                        <td>
+                                            @if (venta.Estado == "Pendiente")
+                                            {
+                                                <a asp-controller="Ventas" asp-action="Edit" asp-route-id="@venta.IdVenta"
+                                                   class="btn-action btn-edit"
+                                                   title="Editar">
+                                                    <i class="bi bi-pencil-fill"></i>
+                                                </a>
+
+                                                <button type="button"
+                                                        class="btn btn-sm btn-success"
+                                                        onclick="cambiarEstado(@venta.IdVenta, 'Completada')"
+                                                        title="Marcar como Completada">
+                                                    <i class="bi bi-check-circle"></i>
+                                                </button>
+                                                <button type="button"
+                                                        class="btn btn-sm btn-danger"
+                                                        onclick="cambiarEstado(@venta.IdVenta, 'Cancelada')"
+                                                        title="Cancelar venta">
+                                                    <i class="bi bi-x-circle"></i>
+                                                </button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="p-4 text-center text-muted">
+                        <p>No hay ventas pendientes</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Formulario oculto para cambiar estado -->
+<form id="formCambiarEstado" asp-action="CambiarEstado" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="ventaId" />
+    <input type="hidden" name="nuevoEstado" id="nuevoEstado" />
+</form>
+
+<form method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        let carrito = [];
+
+        function filtrarCategoria(categoriaId) {
+            // Actualizar botones
+            document.querySelectorAll('.categoria-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filtrar productos
+            const productos = document.querySelectorAll('.producto-card');
+            productos.forEach(producto => {
+                if (categoriaId === 'todas') {
+                    producto.style.display = 'block';
+                } else {
+                    const productoCategoria = producto.getAttribute('data-categoria');
+                    producto.style.display = productoCategoria === categoriaId ? 'block' : 'none';
+                }
+            });
+        }
+
+        function agregarAlCarrito(id, nombre, precio) {
+            const itemExistente = carrito.find(item => item.id === id);
+
+            if (itemExistente) {
+                itemExistente.cantidad++;
+            } else {
+                carrito.push({
+                    id: id,
+                    nombre: nombre,
+                    precio: precio,
+                    cantidad: 1
+                });
+            }
+
+            actualizarCarrito();
+        }
+
+        function cambiarCantidad(id, cambio) {
+            const item = carrito.find(i => i.id === id);
+            if (item) {
+                item.cantidad += cambio;
+                if (item.cantidad <= 0) {
+                    eliminarItem(id);
+                } else {
+                    actualizarCarrito();
+                }
+            }
+        }
+
+        function eliminarItem(id) {
+            carrito = carrito.filter(item => item.id !== id);
+            actualizarCarrito();
+        }
+
+        function actualizarCarrito() {
+            const container = document.getElementById('carritoItems');
+            const totalElement = document.getElementById('totalAmount');
+            const btnCobrar = document.getElementById('btnCobrar');
+
+            if (carrito.length === 0) {
+                container.innerHTML = `
+                    <div class="carrito-vacio">
+                        <i class="bi bi-cart-x"></i>
+                        <p>Selecciona productos del menú</p>
+                    </div>
+                `;
+                totalElement.textContent = '$0.00';
+                btnCobrar.disabled = true;
+                return;
+            }
+
+            let html = '';
+            let total = 0;
+
+            carrito.forEach(item => {
+                const subtotal = item.precio * item.cantidad;
+                total += subtotal;
+
+                html += `
+                    <div class="carrito-item">
+                        <div class="item-info">
+                            <div class="item-nombre">${item.nombre}</div>
+                            <div class="item-precio">$${item.precio.toFixed(2)} c/u</div>
+                        </div>
+                        <div class="item-cantidad">
+                            <button class="cantidad-btn" onclick="cambiarCantidad(${item.id}, -1)">-</button>
+                            <span class="cantidad-display">${item.cantidad}</span>
+                            <button class="cantidad-btn" onclick="cambiarCantidad(${item.id}, 1)">+</button>
+                        </div>
+                        <button class="item-eliminar" onclick="eliminarItem(${item.id})">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            totalElement.textContent = `$${total.toFixed(2)}`;
+            btnCobrar.disabled = false;
+        }
+
+        function limpiarCarrito() {
+            if (carrito.length === 0) return;
+
+            if (confirm('¿Desea limpiar el carrito?')) {
+                carrito = [];
+                document.getElementById('nombreCliente').value = '';
+                actualizarCarrito();
+            }
+        }
+
+        async function procesarVenta() {
+            if (carrito.length === 0) return;
+
+            const nombreCliente = document.getElementById('nombreCliente').value || 'Cliente';
+            const btnCobrar = document.getElementById('btnCobrar');
+
+            btnCobrar.disabled = true;
+            btnCobrar.innerHTML = '<i class="bi bi-hourglass-split"></i> Procesando...';
+
+            const ventaData = {
+                nombreCliente: nombreCliente,
+                items: carrito.map(item => ({
+                    idPlatillo: item.id,
+                    cantidad: item.cantidad
+                }))
+            };
+
+            try {
+                const response = await fetch('@Url.Action("CrearVenta", "POS")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify(ventaData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`✅ ${result.message}\n\nTotal: $${result.total.toFixed(2)}\nVenta #${result.ventaId}`);
+                    carrito = [];
+                    document.getElementById('nombreCliente').value = '';
+                    actualizarCarrito();
+                    location.reload();
+                } else {
+                    alert('❌ ' + result.message);
+                }
+            } catch (error) {
+                alert('❌ Error al procesar la venta: ' + error);
+            } finally {
+                btnCobrar.disabled = false;
+                btnCobrar.innerHTML = '<i class="bi bi-cash-coin"></i> Procesar Venta';
+            }
+        }
+
+            // Función para cambiar estado de ventas
+        function cambiarEstado(ventaId, estado) {
+            const mensajes = {
+                'Completada': '¿Marcar esta venta como completada?',
+                'Cancelada': '¿Está seguro de cancelar esta venta? Esta acción no se puede deshacer.'
+            };
+
+            if (confirm(mensajes[estado])) {
+                document.getElementById('ventaId').value = ventaId;
+                document.getElementById('nuevoEstado').value = estado;
+                document.getElementById('formCambiarEstado').submit();
+            }
+        }
+    </script>
+}
+
+@functions {
+    string ObtenerIcono(string? categoria)
+    {
+        return categoria?.ToLower() switch
+        {
+            "entrantes" => "basket2-fill",
+            "sencillos" => "basket",
+            "combos" => "bag-check-fill",
+            "bebidas" => "cup-straw",
+            "postres" => "cake2",
+            _ => "basket"
+        };
+    }
+}

@@ -1,0 +1,397 @@
+﻿@model ayalas_street_dogs.Controllers.AjusteInventarioViewModel
+
+@{
+    ViewData["Title"] = "Ajustar Stock";
+}
+
+<div class="container mt-5">
+    <div class="card card-custom">
+        <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <h1 class="page-title">AJUSTAR STOCK</h1>
+            <a asp-action="Index" class="btn btn-outline-brand">Volver</a>
+        </div>
+        <div class="card-body">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Error:</strong>
+                    <ul class="mb-0">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <form asp-action="Ajustar" method="post" class="row g-3" id="formAjuste">
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+                <!-- 🔧 Campos ocultos requeridos para el binding -->
+                <input asp-for="IdIngrediente" type="hidden" />
+                <input asp-for="NombreIngrediente" type="hidden" />
+                <input asp-for="UnidadMedida" type="hidden" />
+                <input asp-for="StockActual" type="hidden" />
+
+                <div class="col-12">
+                    <label class="form-label fw-bold">Ingrediente</label>
+                    <input class="form-control" value="@Model.NombreIngrediente" readonly />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Stock Actual</label>
+                    <div class="input-group">
+                        <input class="form-control" value="@($"{Model.StockActual:0.###}")" readonly />
+                        <span class="input-group-text">@Model.UnidadMedida</span>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Unidad de Medida</label>
+                    <input class="form-control" value="@Model.UnidadMedida" readonly />
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="TipoMovimiento" class="form-label fw-bold">
+                        Tipo de Movimiento <span class="text-danger">*</span>
+                    </label>
+                    <select asp-for="TipoMovimiento" class="form-select" required>
+                        <option value="">-- Seleccione tipo --</option>
+                        <option value="ENTRADA">➕ ENTRADA (Aumentar stock)</option>
+                        <option value="SALIDA">➖ SALIDA (Reducir stock)</option>
+                        <option value="AJUSTE">🔄 AJUSTE (Corrección manual)</option>
+                    </select>
+                    <span asp-validation-for="TipoMovimiento" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Cantidad" class="form-label fw-bold">
+                        Cantidad <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="Cantidad"
+                           class="form-control decimal-normalize"
+                           type="number"
+                           step="0.001"
+                           min="0.001"
+                           placeholder="Ej: 10.5"
+                           required />
+                    <span asp-validation-for="Cantidad" class="text-danger small"></span>
+                    <small class="form-text text-muted">Ingrese solo números positivos (ej: 10.5)</small>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Motivo" class="form-label fw-bold">Motivo</label>
+                    <input asp-for="Motivo"
+                           class="form-control"
+                           placeholder="Describa el motivo del ajuste"
+                           maxlength="200" />
+                    <span asp-validation-for="Motivo" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <div class="alert alert-info" role="alert">
+                        <strong>💡 Información:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li><strong>ENTRADA:</strong> Aumenta el stock (compras, devoluciones)</li>
+                            <li><strong>SALIDA:</strong> Reduce el stock (mermas, uso, pérdidas)</li>
+                            <li><strong>AJUSTE:</strong> Corrección manual de inventario</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-brand-gradient" id="btnSubmit">
+                        <i class="bi bi-save"></i> Registrar Ajuste
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function() {
+            'use strict';
+
+            // Normalizar decimales: reemplaza comas por puntos
+            function normalizeDecimal(value) {
+                if (!value) return value;
+                value = value.toString().trim();
+                value = value.replace(/,/g, '.');
+
+                // Remover múltiples puntos (solo dejar el primero)
+                var parts = value.split('.');
+                if (parts.length > 1) {
+                    var intPart = parts[0];
+                    var decPart = parts.slice(1).join('');
+                    return intPart + '.' + decPart;
+                }
+                return value;
+            }
+
+            var form = document.getElementById('formAjuste');
+            var btnSubmit = document.getElementById('btnSubmit');
+
+            if (form) {
+                // Normalizar antes de enviar
+                form.addEventListener('submit', function(e) {
+                    var inputs = document.querySelectorAll('.decimal-normalize');
+                    inputs.forEach(function(input) {
+                        input.value = normalizeDecimal(input.value);
+                    });
+
+                    // Deshabilitar botón para evitar doble envío
+                    btnSubmit.disabled = true;
+                    btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+                });
+
+                // Preview del resultado
+                var tipoSelect = document.querySelector('select[name="TipoMovimiento"]');
+                var cantidadInput = document.querySelector('input[name="Cantidad"]');
+
+                function actualizarPreview() {
+                    var tipo = tipoSelect ? tipoSelect.value : '';
+                    var cantidad = cantidadInput ? parseFloat(cantidadInput.value) || 0 : 0;
+                    var stockActual = @Model.StockActual;
+                    var unidad = '@Model.UnidadMedida';
+
+                    var previewDiv = document.getElementById('stockPreview');
+                    if (!previewDiv) {
+                        previewDiv = document.createElement('div');
+                        previewDiv.id = 'stockPreview';
+                        previewDiv.className = 'alert mt-2';
+                        cantidadInput.parentElement.appendChild(previewDiv);
+                    }
+
+                    if (cantidad > 0 && tipo) {
+                        var nuevoStock = stockActual;
+                        if (tipo === 'ENTRADA' || tipo === 'AJUSTE') {
+                            nuevoStock = stockActual + cantidad;
+                            previewDiv.className = 'alert alert-success mt-2';
+                            previewDiv.innerHTML = '<strong>✅ Nuevo stock:</strong> ' + nuevoStock.toFixed(3) + ' ' + unidad;
+                        } else if (tipo === 'SALIDA') {
+                            nuevoStock = stockActual - cantidad;
+                            if (nuevoStock < 0) {
+                                previewDiv.className = 'alert alert-danger mt-2';
+                                previewDiv.innerHTML = '<strong>❌ Stock insuficiente:</strong> No se puede retirar ' + cantidad + ' ' + unidad + '. Stock actual: ' + stockActual + ' ' + unidad;
+                            } else {
+                                previewDiv.className = 'alert alert-warning mt-2';
+                                previewDiv.innerHTML = '<strong>⚠️ Nuevo stock:</strong> ' + nuevoStock.toFixed(3) + ' ' + unidad;
+                            }
+                        }
+                    } else {
+                        previewDiv.style.display = 'none';
+                    }
+                }
+
+                if (tipoSelect) tipoSelect.addEventListener('change', actualizarPreview);
+                if (cantidadInput) cantidadInput.addEventListener('input', actualizarPreview);
+            }
+
+            // Permitir solo números y un punto decimal en el input
+            var decimalInputs = document.querySelectorAll('.decimal-normalize');
+            decimalInputs.forEach(function(input) {
+                input.addEventListener('keypress', function(e) {
+                    var char = String.fromCharCode(e.which);
+                    var currentValue = this.value;
+
+                    // Permitir: números, punto, coma, backspace, delete, tab
+                    if (!/[\d.,]/.test(char) && e.which !== 8 && e.which !== 9 && e.which !== 46) {
+                        e.preventDefault();
+                    }
+
+                    // Permitir solo un punto/coma
+                    if ((char === '.' || char === ',') && (currentValue.includes('.') || currentValue.includes(','))) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        })();
+    </script>
+
+    <style>
+        /* 🎨 PALETA DE COLORES PERSONALIZADA
+                   Verde Lima: #8AA624
+                   Beige: #F2E2C4
+                   Naranja: #F28F16
+                   Rojo Naranja: #D9580D
+                   Negro: #0D0D0D
+                */
+
+        .card-custom {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(13, 13, 13, 0.15);
+            border: none;
+            background: #FFFFFF;
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, #8AA624 0%, #D9580D 100%);
+            color: #F2E2C4;
+            padding: 1.5rem;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            color: #F2E2C4;
+            text-shadow: 1px 1px 2px rgba(13, 13, 13, 0.3);
+        }
+
+        .btn-brand-gradient {
+            background: linear-gradient(135deg, #8AA624 0%, #F28F16 100%);
+            border: none;
+            color: #F2E2C4;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(13, 13, 13, 0.2);
+        }
+
+            .btn-brand-gradient:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(242, 143, 22, 0.5);
+                background: linear-gradient(135deg, #9DBE2A 0%, #F28F16 100%);
+                color: #F2E2C4;
+            }
+
+            .btn-brand-gradient:active {
+                transform: translateY(0);
+                background: linear-gradient(135deg, #7A9420 0%, #D9580D 100%);
+            }
+
+        .btn-outline-brand {
+            border: 2px solid #F2E2C4;
+            color: #F2E2C4;
+            background: transparent;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+            .btn-outline-brand:hover {
+                background: #F2E2C4;
+                color: #8AA624;
+                border-color: #F2E2C4;
+                transform: translateY(-2px);
+            }
+
+        .btn-outline-secondary {
+            border: 2px solid #D9580D;
+            color: #D9580D;
+            background: transparent;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+            .btn-outline-secondary:hover {
+                background: #D9580D;
+                color: #F2E2C4;
+                border-color: #D9580D;
+            }
+
+        .form-label.fw-bold {
+            color: #0D0D0D;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #F28F16;
+            box-shadow: 0 0 0 0.2rem rgba(242, 143, 22, 0.25);
+        }
+
+        .text-danger {
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            color: #D9580D !important;
+        }
+
+        .alert-info {
+            background-color: rgba(138, 166, 36, 0.1);
+            border-color: #8AA624;
+            color: #0D0D0D;
+        }
+
+            .alert-info strong {
+                color: #8AA624;
+            }
+
+        .alert-success {
+            background-color: rgba(138, 166, 36, 0.15);
+            border-color: #8AA624;
+            color: #0D0D0D;
+        }
+
+        .alert-warning {
+            background-color: rgba(242, 143, 22, 0.15);
+            border-color: #F28F16;
+            color: #0D0D0D;
+        }
+
+        .alert-danger {
+            background-color: rgba(217, 88, 13, 0.15);
+            border-color: #D9580D;
+            color: #0D0D0D;
+        }
+
+        .input-group-text {
+            background-color: #F2E2C4;
+            border-color: #8AA624;
+            color: #0D0D0D;
+            font-weight: 500;
+        }
+
+        .form-control[readonly] {
+            background-color: #F2E2C4;
+            border-color: #8AA624;
+            color: #0D0D0D;
+            font-weight: 500;
+        }
+
+        /* Spinner personalizado */
+        .spinner-border {
+            border-color: #F2E2C4;
+            border-right-color: transparent;
+        }
+
+        /* Select opciones */
+        .form-select option {
+            background-color: #FFFFFF;
+            color: #0D0D0D;
+        }
+
+        /* Tooltips y textos de ayuda */
+        .form-text {
+            color: #8AA624;
+        }
+
+        /* Preview de stock */
+        #stockPreview {
+            font-weight: 500;
+            border-left: 4px solid;
+        }
+
+            #stockPreview.alert-success {
+                border-left-color: #8AA624;
+            }
+
+            #stockPreview.alert-warning {
+                border-left-color: #F28F16;
+            }
+
+            #stockPreview.alert-danger {
+                border-left-color: #D9580D;
+            }
+    </style>
+}

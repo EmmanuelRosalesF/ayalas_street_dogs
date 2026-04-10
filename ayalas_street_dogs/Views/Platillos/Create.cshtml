@@ -1,0 +1,56 @@
+﻿@model ayalas_street_dogs.Models.Platillo
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<div class="container mt-5">
+    <div class="card card-custom mx-auto" style="max-width: 550px;">
+        <h1 class="page-title">REGISTRAR PLATILLO</h1>
+
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="NombrePlatillo" class="form-label control-label fw-bold">Nombre del Platillo</label>
+                <input asp-for="NombrePlatillo" class="form-control input-custom" placeholder="Ej: Hamburguesa, Hot-Dog, Agua de Jamaica..." />
+                <span asp-validation-for="NombrePlatillo" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Precio" class="form-label control-label fw-bold">Precio $</label>
+                <input asp-for="Precio" class="form-control input-custom" placeholder="Ej: 99,99" />
+                <span asp-validation-for="Precio" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Descripcion" class="form-label control-label fw-bold">Descripción</label>
+                <input asp-for="Descripcion" class="form-control input-custom" placeholder="Ej: Hot-Dog con papas y refresco..." maxlength="100" />
+                <span asp-validation-for="Descripcion" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="IdCategoriaMenu" class="form-label control-label fw-bold">Categoría</label>
+                <select asp-for="IdCategoriaMenu" class="form-control input-custom" asp-items="ViewBag.CategoriaMenu">
+                </select>
+                <span asp-validation-for="IdCategoriaMenu" class="text-danger small"></span>
+            </div>
+
+            <div class="d-grid gap-2 mb-3">
+                <button type="submit" class="btn btn-brand-gradient py-2">
+                    <i class="bi bi-patch-plus-fill me-2"></i> AGREGAR PLATILLO
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center mt-3">
+            <a asp-action="Index" class="btn btn-outline-secondary-brand">
+                <i class="bi bi-arrow-left-circle-fill me-1"></i> Regresar a Platillos
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

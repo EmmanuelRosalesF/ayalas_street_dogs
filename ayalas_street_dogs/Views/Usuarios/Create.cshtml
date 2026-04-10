@@ -1,0 +1,98 @@
+﻿@model ayalas_street_dogs.Models.Usuario
+
+@{
+    ViewData["Title"] = "Registrar";
+}
+
+<div class="container mt-5">
+    <div class="card card-custom mx-auto" style="max-width: 550px;">
+        <h1 class="page-title">REGISTRAR USUARIO</h1>
+
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Usuario1" class="form-label control-label fw-bold">Nombre de Usuario</label>
+                <input asp-for="Usuario1" class="form-control input-custom" placeholder="Ej: usuario123" />
+                <span asp-validation-for="Usuario1" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Contrasena" class="form-label control-label fw-bold">Contraseña</label>
+                <input asp-for="Contrasena" type="password" id="passwordInput" class="form-control input-custom" placeholder="Mezcla Números y Letras" />
+                <span asp-validation-for="Contrasena" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ConfirmarContrasena" class="form-label control-label fw-bold">Confirmar Contraseña</label>
+                <input asp-for="ConfirmarContrasena" type="password" id="passwordInput2" class="form-control input-custom" placeholder="Mezcla Números y Letras" />
+                <span asp-validation-for="ConfirmarContrasena" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Nombres" class="form-label control-label fw-bold">Nombres</label>
+                <input asp-for="Nombres" class="form-control input-custom" placeholder="Ej: Nombre1 Nombre2" />
+                <span asp-validation-for="Nombres" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Apellidos" class="form-label control-label fw-bold">Apellidos</label>
+                <input asp-for="Apellidos" class="form-control input-custom" placeholder="Ej: Apellido1 Apellido2" />
+                <span asp-validation-for="Apellidos" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="EmailUsuario" class="form-label control-label fw-bold">Correo</label>
+                <input asp-for="EmailUsuario" class="form-control input-custom" placeholder="Ej: correo@correo.com" maxlength="100" />
+                <span asp-validation-for="EmailUsuario" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="TelefonoUsuario" class="form-label control-label fw-bold">Télefono Celular</label>
+                <input asp-for="TelefonoUsuario" class="form-control input-custom" placeholder="Ej: 111 111 1111" maxlength="100" />
+                <span asp-validation-for="TelefonoUsuario" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Rol" class="form-label control-label fw-bold">Rol</label>
+                <select asp-for="Rol" class="form-control input-custom">
+                    <option value="">-- Seleccione una Opción --</option>
+                    <option value="Admin">Administrador</option>
+                    <option value="Empleado">Empleado</option>
+                </select>
+                <span asp-validation-for="Rol" class="text-danger small"></span>
+            </div>
+
+            <div class="d-grid gap-2 mb-3">
+                <button type="submit" class="btn btn-brand-gradient py-2">
+                    <i class="bi bi-patch-plus-fill me-2"></i> AGREGAR USUARIO
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center mt-3">
+            <a asp-action="Index" class="btn btn-outline-secondary-brand">
+                <i class="bi bi-arrow-left-circle-fill me-1"></i> Regresar a Usuarios
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => 
+        {
+            const pass = document.getElementById("passwordInput");
+            const confirm = document.getElementById("passwordInput2");
+
+            confirm.addEventListener("input", () => {
+                if (confirm.value !== pass.value) {
+                    confirm.setCustomValidity("Las contraseñas no coinciden");
+                } else {
+                    confirm.setCustomValidity("");
+                }
+            });
+
+        });
+    </script>
+}

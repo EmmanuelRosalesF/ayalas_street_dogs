@@ -1,0 +1,69 @@
+﻿@model ayalas_street_dogs.Models.Usuario
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div class="container mt-5">
+    <div class="card card-custom mx-auto" style="max-width: 550px;">
+        <h1 class="page-title">EDITAR USUARIO @Html.DisplayFor(model => model.Usuario1)</h1>
+
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="Usuario1" />
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Nombres" class="form-label control-label fw-bold">Nombres</label>
+                <input asp-for="Nombres" class="form-control input-custom" />
+                <span asp-validation-for="Nombres" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Apellidos" class="form-label control-label fw-bold">Apellidos</label>
+                <input asp-for="Apellidos" class="form-control input-custom" />
+                <span asp-validation-for="Apellidos" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="EmailUsuario" class="form-label control-label fw-bold">Correo</label>
+                <input asp-for="EmailUsuario" class="form-control input-custom" />
+                <span asp-validation-for="EmailUsuario" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="TelefonoUsuario" class="form-label control-label fw-bold">Télefono Celular</label>
+                <input asp-for="TelefonoUsuario" class="form-control input-custom" />
+                <span asp-validation-for="TelefonoUsuario" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Rol" class="form-label control-label fw-bold">Categoría</label>
+                <select asp-for="Rol" class="form-control input-custom">
+                    <option value="Admin" selected="@Model.Rol == "Admin"">Administrador</option>
+					<option value="Empleado" selected="@Model.Rol == " Empleado"">Empleado</option>
+                </select>
+                <span asp-validation-for="Rol" class="text-danger small"></span>
+            </div>
+
+            <div class="d-grid gap-2 mb-3">
+                <button type="submit" class="btn btn-brand-gradient py-2">
+                    <i class="bi bi-save-fill me-2"></i> GUARDAR CAMBIOS
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center mt-3">
+            <a asp-action="Details" asp-route-id="@Model?.Usuario1" class="btn btn-outline-secondary-brand me-3">
+                <i class="bi bi-eye-fill me-1"></i> Ver Detalles
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary-brand">
+                <i class="bi bi-arrow-left-circle-fill me-1"></i> Regresar a Usuarios
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,62 @@
+﻿@model ayalas_street_dogs.Models.Usuario
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="container mt-5">
+    <div class="card card-custom mx-auto" style="max-width: 550px;">
+        <h1 class="page-title">DETALLES DE @Html.DisplayFor(model => model.Usuario1)</h1>
+
+        <dl class="row mb-4">
+            <dt class="col-sm-4 fw-bold text-end">
+                Nombres:
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.Nombres)
+            </dd>
+
+            <dt class="col-sm-4 fw-bold text-end">
+                Apellidos:
+            </dt>
+            <dd class="col-sm-8">
+                <span class="badge rounded-pill" style="background-color: #F28F16; color: white; padding: 0.5em 0.8em;">
+                    @Html.DisplayFor(model => model.Apellidos)
+                </span>
+            </dd>
+
+            <dt class="col-sm-4 fw-bold text-end">
+                Correo:
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.EmailUsuario)
+            </dd>
+
+            <dt class="col-sm-4 fw-bold text-end">
+                Télefono Celular:
+            </dt>
+            <dd class="col-sm-8">
+                <span class="badge rounded-pill" style="background-color: #F28F16; color: white; padding: 0.5em 0.8em;">
+                    @Html.DisplayFor(model => model.TelefonoUsuario)
+                </span>
+            </dd>
+
+            <dt class="col-sm-4 fw-bold text-end">
+                Rol:
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.Rol)
+            </dd>
+        </dl>
+
+        <div class="text-center mt-3">
+            <a asp-action="Edit" asp-route-id="@Model?.Usuario1" class="btn btn-sm btn-edit me-3" style="background-color: #F28F16; color: white;">
+                <i class="bi bi-pencil-fill me-1"></i> Editar
+            </a>
+
+            <a asp-action="Index" class="btn btn-outline-secondary-brand">
+                <i class="bi bi-arrow-left-circle-fill me-1"></i> Regresar a Usuarios
+            </a>
+        </div>
+    </div>
+</div>
