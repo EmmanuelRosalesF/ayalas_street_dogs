@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
-COPY ayalas_street_dogs.csproj ./
+COPY ayalas_street_dogs/ayalas_street_dogs.csproj ./
 RUN dotnet restore
 
 COPY . ./
