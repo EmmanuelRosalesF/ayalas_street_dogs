@@ -5,7 +5,9 @@ COPY ayalas_street_dogs/ayalas_street_dogs.csproj ./ayalas_street_dogs.csproj
 RUN dotnet restore ayalas_street_dogs.csproj
 
 COPY . .
-RUN dotnet publish ayalas_street_dogs.csproj -c Release -o /app/out
+
+RUN dotnet clean ayalas_street_dogs.csproj -c Release && \
+    dotnet publish ayalas_street_dogs.csproj -c Release -o /app/out
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
