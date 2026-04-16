@@ -6,8 +6,7 @@ RUN dotnet restore ayalas_street_dogs.csproj
 
 COPY . .
 
-RUN dotnet clean ayalas_street_dogs.csproj -c Release && \
-    dotnet publish ayalas_street_dogs.csproj -c Release -o /app/out
+RUN dotnet publish ayalas_street_dogs.csproj -c Release -o /app/out /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
