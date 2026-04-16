@@ -25,4 +25,13 @@
     <Folder Include="wwwroot\img\" />
   </ItemGroup>
 
+<ItemGroup>
+  <Content Include="Views\**\*.cshtml">
+    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+  </Content>
+  <Content Include="wwwroot\**\*">
+    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+  </Content>
+</ItemGroup>
+
 </Project>
